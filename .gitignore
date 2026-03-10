@@ -1,0 +1,15 @@
+*.local
+*.local.*
+*.log*
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+.claude/progress/
+.env
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+dist/
+node_modules/
