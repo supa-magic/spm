@@ -13,12 +13,6 @@ Published as `@supa-magic/spm` on npm.
 ## Commands
 - `spm install <skillset>` - Install a skillset into the project
 
-## Scripts
-- `npm run build` - Compile TypeScript
-- `npm run dev` - Watch mode
-- `npm run lint` - Check with Biome
-- `npm run format` - Format with Biome
-
 ## Related
 - Skillsets use skills from the skillbox repository
 - Part of the Supa Magic ecosystem
