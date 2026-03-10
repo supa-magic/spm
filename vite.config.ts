@@ -15,7 +15,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['commander'],
+      external: ['commander', 'js-yaml'],
     },
     ssr: true,
     emptyOutDir: true,
