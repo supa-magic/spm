@@ -8,7 +8,7 @@ export default defineConfig({
     },
   },
   build: {
-    target: 'node18',
+    target: 'node20',
     outDir: 'dist',
     lib: {
       entry: { 'bin/spm': resolve(__dirname, 'src/bin/spm.ts') },

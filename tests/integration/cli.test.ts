@@ -1,17 +1,17 @@
 import { execFile } from 'node:child_process'
 import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
-const cli = resolve(__dirname, '../../dist/bin/spm.js')
+const dir = fileURLToPath(new URL('.', import.meta.url))
+const cli = resolve(dir, '../../dist/bin/spm.js')
 
 const run = (...args: string[]) =>
   new Promise<{ stdout: string; stderr: string; code: number }>((res) => {
     execFile('node', [cli, ...args], (error, stdout, stderr) => {
-      res({
-        stdout,
-        stderr,
-        code: typeof error?.code === 'number' ? error.code : 0,
-      })
+      const code =
+        error === null ? 0 : typeof error.code === 'number' ? error.code : 1
+      res({ stdout, stderr, code })
     })
   })
 
