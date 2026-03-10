@@ -1,4 +1,4 @@
-import type { ProjectConfig, SkillEntry, SkillsetEntry } from './types'
+import type { ProjectConfig, SkillEntry } from './types'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { dump, load } from 'js-yaml'
@@ -16,14 +16,9 @@ const configPath = (root: string) => join(root, CONFIG_FILE)
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
-const parseSkillEntry = (value: unknown): SkillEntry | undefined => {
-  if (!isRecord(value)) return undefined
-  if (typeof value.source !== 'string' || typeof value.version !== 'number')
-    return undefined
-  return { source: value.source, version: value.version }
-}
-
-const parseSkillsetEntry = (value: unknown): SkillsetEntry | undefined => {
+const parseSourceVersion = (
+  value: unknown,
+): { source: string; version: number } | undefined => {
   if (!isRecord(value)) return undefined
   if (typeof value.source !== 'string' || typeof value.version !== 'number')
     return undefined
@@ -34,7 +29,7 @@ const parseSkills = (value: unknown): Record<string, SkillEntry> => {
   if (!isRecord(value)) return {}
   return Object.entries(value).reduce<Record<string, SkillEntry>>(
     (acc, [key, val]) => {
-      const entry = parseSkillEntry(val)
+      const entry = parseSourceVersion(val)
       if (entry) acc[key] = entry
       return acc
     },
@@ -45,7 +40,7 @@ const parseSkills = (value: unknown): Record<string, SkillEntry> => {
 const normalizeConfig = (raw: unknown): ProjectConfig => {
   if (!isRecord(raw)) return { ...defaultConfig }
 
-  const skillset = parseSkillsetEntry(raw.skillset)
+  const skillset = parseSourceVersion(raw.skillset)
 
   return {
     provider:
