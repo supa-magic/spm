@@ -1,0 +1,29 @@
+{
+  "name": "@supa-magic/spm",
+  "version": "0.1.0",
+  "description": "CLI tool for managing AI skillsets",
+  "license": "MIT",
+  "contributors": ["sultan99", "bafxyz"],
+  "keywords": [
+    "cli",
+    "ai",
+    "skills",
+    "skillsets",
+    "supa-magic"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "spm": "dist/bin/spm.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "clear && claude --dangerously-skip-permissions"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.6",
+    "typescript": "5.8.3"
+  }
+}
