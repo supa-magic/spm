@@ -1,6 +1,6 @@
 ---
 name: github
-description: GitHub commands (issues, PRs, ship). Use when developer needs to create issues, create/update PRs, address review comments, or ship experimental changes.
+description: GitHub commands (issues, PRs, releases, ship). Use when developer needs to create issues, create/update PRs, create releases, address review comments, or ship experimental changes.
 user-invocable: true
 argument-hint: <action> [pr-number] [-y]
 ---
@@ -15,9 +15,12 @@ GitHub commands using `gh` CLI.
 /github
     create issue              Conversational issue creation
     create pr                 Create PR from current branch
+    create release [version]  Create GitHub release with auto-generated notes
     update pr [number]        Update PR title and description
     resolve cr [number]       Resolve code review feedback
     ship                      Ship experimental changes (issue → branch → commit → PR)
+
+    --draft                   Create release as draft (for create release)
 
     -y, --yes                 Skip confirmations
 ```
@@ -32,6 +35,7 @@ Read the command-specific instruction file and follow it exactly:
 
 - **create issue** → Read `.claude/skills/github/create-issue.md` and follow all steps
 - **create pr** → Read `.claude/skills/github/create-pr.md` and follow all steps
+- **create release** → Read `.claude/skills/github/create-release.md` and follow all steps
 - **update pr** → Read `.claude/skills/github/update-pr.md` and follow all steps
 - **resolve cr** → Read `.claude/skills/github/resolve-cr.md` and follow all steps
 - **ship** → Read `.claude/skills/github/ship.md` and follow all steps

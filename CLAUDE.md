@@ -13,6 +13,12 @@ Published as `@supa-magic/spm` on npm.
 ## Commands
 - `spm install <skillset>` - Install a skillset into the project
 
+## Skills
+
+- `/git <branch|commit|merge|rebase|squash> [-y]` — Git workflow commands
+- `/github <create issue|create pr|create release|update pr|resolve cr|ship> [-y]` — GitHub operations
+- `/implement <issue-number> [-y]` — Feature implementation workflow (issue → branch → plan → implement → PR)
+
 ## Related
 - Skillsets use skills from the skillbox repository
 - Part of the Supa Magic ecosystem

@@ -65,11 +65,19 @@ If there are no comments from one group, omit that section header.
 
 ### Step 5: Implement fixes
 
-**Confirmation gate:** Show the developer what changes you plan to make. If `-y` → proceed. Otherwise → wait for approval before committing or pushing.
+Apply the code changes for all items marked as FIX.
+
+**Confirmation gate:** Show the developer a summary of changes made. If `-y` → proceed. Otherwise → ask "Commit and push fixes?" and wait.
+
+```bash
+git add <changed-files>
+git commit -m "🛠️fix: address code review feedback"
+git push
+```
 
 ### Step 6: Post replies and resolve threads
 
-After fixes are committed, reply to every comment — both human and automated (Copilot, bots). Never resolve a thread without a reply.
+After fixes are committed and pushed, reply to every comment — both human and automated (Copilot, bots). Never resolve a thread without a reply.
 
 #### Thread resolution rules
 

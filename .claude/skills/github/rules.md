@@ -4,7 +4,7 @@ These rules apply to ALL GitHub operations.
 
 ## Confirmations
 
-Critical GitHub actions (`issue create`, `pr create`, `pr edit`, `push`) require developer confirmation unless `-y` was passed.
+Critical GitHub actions (`issue create`, `pr create`, `pr edit`, `release create`, `push`) require developer confirmation unless `-y` was passed.
 
 ## Restrictions
 
