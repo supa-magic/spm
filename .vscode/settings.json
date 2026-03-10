@@ -1,9 +1,6 @@
 {
   "biome.suggestInstallingGlobally": false,
-  "cSpell.words": [
-    "skillsets",
-    "supa"
-  ],
+  "cSpell.words": ["skillset", "skillsets", "supa"],
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"

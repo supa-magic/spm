@@ -3,27 +3,44 @@
   "version": "0.1.0",
   "description": "CLI tool for managing AI skillsets",
   "license": "MIT",
-  "contributors": ["sultan99", "bafxyz"],
+  "contributors": [
+    "sultan99",
+    "bafxyz"
+  ],
   "keywords": [
-    "cli",
     "ai",
+    "cli",
+    "package manager",
     "skills",
     "skillsets",
+    "spm",
     "supa-magic"
   ],
   "type": "module",
-  "main": "dist/index.js",
   "bin": {
     "spm": "dist/bin/spm.js"
   },
+  "files": [
+    "dist"
+  ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
-    "start": "clear && claude --dangerously-skip-permissions"
+    "start": "clear && claude --dangerously-skip-permissions",
+    "build": "vite build",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.6",
-    "typescript": "5.8.3"
+    "@types/node": "^25.4.0",
+    "typescript": "5.8.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "commander": "^14.0.3"
   }
 }
