@@ -76,19 +76,7 @@ If no previous tag → use first commit as base.
 git log <prev_tag>..HEAD --oneline
 ```
 
-Categorize each commit by its emoji prefix into sections:
-
-| Emoji | Section |
-|-------|---------|
-| 📦 | Features |
-| 🛠️ | Bug Fixes |
-| 🚀 | Performance |
-| 🔨 | Refactoring |
-| 🧪 | Tests |
-| 📃 | Documentation |
-| 🏗️ ⚙️ 🧹 | Maintenance |
-
-For each commit, include the short description. If a commit references an issue or PR (e.g., `#12`, `Closes #12`), include the reference.
+Categorize each commit by its emoji prefix into the matching section in the template below. For each commit, include the short description. If a commit references an issue or PR (e.g., `#12`, `Closes #12`), include the reference.
 
 ### Step 6: Get contributors
 
@@ -115,44 +103,44 @@ Use this template:
 
 ---
 
-## Highlights
+### ✨ Highlights
 
 - <key highlight 1>
 - <key highlight 2>
 
 ---
 
-## Features
+### 🚀 Features
 
 - <description> (<ref>)
 
-## Bug Fixes
+### 🐛 Bug Fixes
 
 - <description> (<ref>)
 
-## Performance
+### ⚡ Performance
 
 - <description>
 
-## Refactoring
+### ♻️ Refactoring
 
 - <description>
 
-## Tests
+### 🧪 Tests
 
 - <description>
 
-## Documentation
+### 📑 Documentation
 
 - <description>
 
-## Maintenance
+### 🔧 Maintenance
 
 - <description>
 
 ---
 
-## Contributors
+### 🧩 Contributors
 
 Thanks to everyone who contributed ❤️
 
@@ -160,7 +148,7 @@ Thanks to everyone who contributed ❤️
 
 ---
 
-## Full Changelog
+### 🔗 Full Changelog
 
 https://github.com/<owner>/<repo>/compare/<prev_tag>...v<version>
 ```
