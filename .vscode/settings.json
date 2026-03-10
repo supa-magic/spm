@@ -1,0 +1,30 @@
+{
+  "biome.suggestInstallingGlobally": false,
+  "cSpell.words": [
+    "skillsets",
+    "supa"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
+  "js/ts.format.enable": false,
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+  "json.format.enable": false,
+  "material-icon-theme.files.associations": {
+    "*.claudeignore": "claude"
+  },
+  "material-icon-theme.folders.associations": {
+    "implement": "simulations",
+    "progress": "tasks",
+    "skills": "bicep"
+  },
+  "material-icon-theme.opacity": 0.9,
+  "material-icon-theme.saturation": 0.9,
+  "notebook.defaultFormatter": "biomejs.biome",
+  "[css]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[typescript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[typescriptreact]": { "editor.defaultFormatter": "biomejs.biome" }
+}
