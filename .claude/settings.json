@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -lc 'jq -r \".tool_input.file_path\" | { read fp; [[ \"$fp\" =~ \\.(tsx?|jsx?|s?css|json|graphql)$ ]] && npx biome format --write \"$fp\" || true; }'",
+            "command": "jq -r '.tool_input.file_path' | { read fp; [[ \"$fp\" =~ \\.(tsx?|jsx?|s?css|json|graphql)$ ]] && npx biome check --fix \"$fp\" || true; }",
             "timeout": 15
           }
         ]
