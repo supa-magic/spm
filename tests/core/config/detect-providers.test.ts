@@ -1,14 +1,10 @@
-import { mkdirSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { detectProviders, knownProviders } from '@/core/config'
 
-const createTmpDir = () => {
-  const dir = join(tmpdir(), `spm-test-${Date.now()}`)
-  mkdirSync(dir, { recursive: true })
-  return dir
-}
+const createTmpDir = () => mkdtempSync(join(tmpdir(), 'spm-test-'))
 
 describe('detectProviders', () => {
   let tmpDir: string
@@ -31,7 +27,7 @@ describe('detectProviders', () => {
 
     const providers = detectProviders(tmpDir)
     expect(providers).toEqual({
-      claude: { path: '/.claude' },
+      claude: { path: '.claude' },
     })
   })
 
@@ -40,7 +36,7 @@ describe('detectProviders', () => {
 
     const providers = detectProviders(tmpDir)
     expect(providers).toEqual({
-      cursor: { path: '/.cursor/rules' },
+      cursor: { path: '.cursor/rules' },
     })
   })
 
@@ -51,9 +47,9 @@ describe('detectProviders', () => {
 
     const providers = detectProviders(tmpDir)
     expect(Object.keys(providers)).toHaveLength(3)
-    expect(providers.claude).toEqual({ path: '/.claude' })
-    expect(providers.cursor).toEqual({ path: '/.cursor/rules' })
-    expect(providers.cody).toEqual({ path: '/.cody' })
+    expect(providers.claude).toEqual({ path: '.claude' })
+    expect(providers.cursor).toEqual({ path: '.cursor/rules' })
+    expect(providers.cody).toEqual({ path: '.cody' })
   })
 
   it('includes all expected known providers', () => {

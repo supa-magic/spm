@@ -1,6 +1,7 @@
 import {
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -17,11 +18,7 @@ import {
   writeConfig,
 } from '@/core/config'
 
-const createTmpDir = () => {
-  const dir = join(tmpdir(), `spm-test-${Date.now()}`)
-  mkdirSync(dir, { recursive: true })
-  return dir
-}
+const createTmpDir = () => mkdtempSync(join(tmpdir(), 'spm-test-'))
 
 describe('config', () => {
   let tmpDir: string
@@ -58,8 +55,8 @@ describe('config', () => {
       expect(config).toEqual({
         version: 1,
         providers: {
-          claude: { path: '/.claude' },
-          cursor: { path: '/.cursor/rules' },
+          claude: { path: '.claude' },
+          cursor: { path: '.cursor/rules' },
         },
       })
     })
@@ -69,7 +66,7 @@ describe('config', () => {
         version: 1,
         providers: {
           claude: {
-            path: '/.claude',
+            path: '.claude',
             skillsets: {
               'nextjs-fsd': '@supa-magic/nextjs-fsd@1.0.0',
               'loop-dev': 'skillbox/loop-dev@2.0.0',
@@ -89,7 +86,7 @@ describe('config', () => {
             ],
           },
           cursor: {
-            path: '/.cursor/rules',
+            path: '.cursor/rules',
             skillsets: {
               'nextjs-fsd': '@supa-magic/nextjs-fsd@1.0.0',
             },
@@ -124,7 +121,7 @@ describe('config', () => {
         ...initial,
         providers: {
           cursor: {
-            path: '/.cursor/rules',
+            path: '.cursor/rules',
           },
         },
       }
