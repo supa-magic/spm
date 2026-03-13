@@ -15,18 +15,23 @@ const createDefaultConfig = (root: string): ProjectConfig => ({
   providers: detectProviders(root),
 })
 
-const readConfig = (root?: string): ProjectConfig => {
+type ReadConfigResult = {
+  config: ProjectConfig
+  created: boolean
+}
+
+const readConfig = (root?: string): ReadConfigResult => {
   const resolvedRoot = root ?? getProjectRoot()
   const configPath = getConfigPath(resolvedRoot)
 
   if (!existsSync(configPath)) {
     const config = createDefaultConfig(resolvedRoot)
     writeConfig(config, resolvedRoot)
-    return config
+    return { config, created: true }
   }
 
   const content = readFileSync(configPath, 'utf-8')
-  return parse(content)
+  return { config: parse(content), created: false }
 }
 
 const writeConfig = (config: ProjectConfig, root?: string): void => {

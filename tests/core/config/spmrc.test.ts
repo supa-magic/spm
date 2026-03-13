@@ -43,7 +43,8 @@ describe('config', () => {
 
   describe('readConfig', () => {
     it('creates default config with no providers when none detected', () => {
-      const config = readConfig(tmpDir)
+      const { config, created } = readConfig(tmpDir)
+      expect(created).toBe(true)
       expect(config).toEqual({ version: 1, providers: {} })
       expect(existsSync(join(tmpDir, CONFIG_FILE))).toBe(true)
     })
@@ -52,7 +53,8 @@ describe('config', () => {
       mkdirSync(join(tmpDir, '.claude'), { recursive: true })
       mkdirSync(join(tmpDir, '.cursor', 'rules'), { recursive: true })
 
-      const config = readConfig(tmpDir)
+      const { config, created } = readConfig(tmpDir)
+      expect(created).toBe(true)
       expect(config).toEqual({
         version: 1,
         providers: {
@@ -100,7 +102,8 @@ describe('config', () => {
       }
       writeFileSync(join(tmpDir, CONFIG_FILE), stringify(existing), 'utf-8')
 
-      const config = readConfig(tmpDir)
+      const { config, created } = readConfig(tmpDir)
+      expect(created).toBe(false)
       expect(config).toEqual(existing)
     })
   })
@@ -127,7 +130,7 @@ describe('config', () => {
       }
       writeConfig(updated, tmpDir)
 
-      const config = readConfig(tmpDir)
+      const { config } = readConfig(tmpDir)
       expect(config.providers.cursor).toBeDefined()
       expect(config.providers.claude).toBeUndefined()
     })
