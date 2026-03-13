@@ -19,6 +19,10 @@ Published as `@supa-magic/spm` on npm.
 - `/github <create issue|create pr|create release|update pr|resolve cr|ship> [-y]` — GitHub operations
 - `/implement <issue-number> [-y]` — Feature implementation workflow (issue → branch → plan → implement → PR)
 
+## Mandatory Rules
+
+- **CRITICAL**: `.claude/rules/lsp.md` — MUST be followed at all times. NEVER use Grep or Glob for code symbol navigation. ALWAYS use LSP.
+
 ## Related
 - Skillsets use skills from the skillbox repository
 - Part of the Supa Magic ecosystem
