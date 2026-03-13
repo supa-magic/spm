@@ -47,6 +47,6 @@ describe('spm cli', () => {
 
   it('runs install stub', async () => {
     const { stdout } = await run('install', 'test-skillset')
-    expect(stdout.trim()).toBe('install test-skillset: Not implemented yet')
+    expect(stdout.trim()).toBe('install test-skillset: not implemented yet')
   })
 })

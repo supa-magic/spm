@@ -1,3 +1,4 @@
 export { registerDoctorCommand } from './doctor'
+export { registerInitCommand } from './init'
 export { registerInstallCommand } from './install'
 export { registerListCommand } from './list'

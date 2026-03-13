@@ -17,7 +17,7 @@ Extract from PR branch name (see [rules.md](rules.md) > Resolving Issue Number).
 ### Step 3: Fetch GitHub issue
 
 ```bash
-gh issue view <number>
+gh issue view <number> --json title,body,labels
 ```
 
 Get issue title, description, and labels.

@@ -11,7 +11,7 @@ See [rules.md](rules.md) > Resolving Issue Number.
 ### Step 2: Fetch GitHub issue
 
 ```bash
-gh issue view <number>
+gh issue view <number> --json title,body,labels
 ```
 
 Get issue title, description, and labels.

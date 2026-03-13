@@ -1,4 +1,5 @@
 import type { Command } from 'commander'
+import { readConfig } from '@/core/config'
 
 const registerInstallCommand = (program: Command) => {
   program
@@ -6,7 +7,8 @@ const registerInstallCommand = (program: Command) => {
     .alias('i')
     .description('Install a skillset into the project')
     .action((skillset: string) => {
-      console.log(`install ${skillset}: Not implemented yet`)
+      readConfig()
+      console.log(`install ${skillset}: not implemented yet`)
     })
 }
 

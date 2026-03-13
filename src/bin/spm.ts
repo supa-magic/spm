@@ -2,6 +2,7 @@
 import { Command } from 'commander'
 import {
   registerDoctorCommand,
+  registerInitCommand,
   registerInstallCommand,
   registerListCommand,
 } from '@/commands'
@@ -17,7 +18,7 @@ const reset = '\x1b[0m'
 program
   .name('spm')
   .description(banner(version))
-  .version(version)
+  .version(version, '-v, --version')
   .configureHelp({
     formatHelp: (cmd, helper) => {
       const defaultHelp = Command.prototype.createHelp().formatHelp(cmd, helper)
@@ -26,6 +27,7 @@ program
     },
   })
 
+registerInitCommand(program)
 registerInstallCommand(program)
 registerListCommand(program)
 registerDoctorCommand(program)
