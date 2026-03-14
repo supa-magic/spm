@@ -49,4 +49,24 @@ describe('parseIdentifier', () => {
       'Expected format: @owner/repo/path',
     )
   })
+
+  it('rejects empty segments like @owner/repo/', () => {
+    expect(() => parseIdentifier('@owner/repo/')).toThrow(
+      'Expected format: @owner/repo/path',
+    )
+  })
+
+  it('rejects @/repo/path with empty owner', () => {
+    expect(() => parseIdentifier('@/repo/path')).toThrow(
+      'Expected format: @owner/repo/path',
+    )
+  })
+
+  it('normalizes double slashes', () => {
+    expect(parseIdentifier('@owner//repo/path')).toEqual({
+      owner: 'owner',
+      repository: 'repo',
+      path: 'path',
+    })
+  })
 })

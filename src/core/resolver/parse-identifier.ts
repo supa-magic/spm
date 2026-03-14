@@ -9,7 +9,7 @@ const parseIdentifier = (input: string): SkillIdentifier => {
     )
   }
 
-  const parts = trimmed.slice(1).split('/')
+  const parts = trimmed.slice(1).split('/').filter(Boolean)
 
   if (parts.length < 3) {
     throw new Error(

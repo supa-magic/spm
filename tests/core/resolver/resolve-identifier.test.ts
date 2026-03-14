@@ -1,9 +1,25 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resolveIdentifier } from '@/core/resolver'
 
 describe('resolveIdentifier', () => {
-  it('resolves to correct manifest path', () => {
-    expect(resolveIdentifier('@supa-magic/skillbox/claude/fsd')).toEqual({
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ default_branch: 'main' }),
+        }),
+      ),
+    )
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('resolves to correct skillset path', async () => {
+    expect(await resolveIdentifier('@supa-magic/skillbox/claude/fsd')).toEqual({
       owner: 'supa-magic',
       repository: 'skillbox',
       path: 'claude/fsd/skillset.yml',
@@ -11,8 +27,8 @@ describe('resolveIdentifier', () => {
     })
   })
 
-  it('resolves single path segment', () => {
-    expect(resolveIdentifier('@supa-magic/skillset/nextjs')).toEqual({
+  it('resolves single path segment', async () => {
+    expect(await resolveIdentifier('@supa-magic/skillset/nextjs')).toEqual({
       owner: 'supa-magic',
       repository: 'skillset',
       path: 'nextjs/skillset.yml',
@@ -20,8 +36,8 @@ describe('resolveIdentifier', () => {
     })
   })
 
-  it('resolves deep path', () => {
-    expect(resolveIdentifier('@org/repo/a/b/c')).toEqual({
+  it('resolves deep path', async () => {
+    expect(await resolveIdentifier('@org/repo/a/b/c')).toEqual({
       owner: 'org',
       repository: 'repo',
       path: 'a/b/c/skillset.yml',
@@ -29,7 +45,34 @@ describe('resolveIdentifier', () => {
     })
   })
 
-  it('throws on invalid identifier', () => {
-    expect(() => resolveIdentifier('bad-input')).toThrow('Must start with @')
+  it('uses detected default branch', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ default_branch: 'master' }),
+        }),
+      ),
+    )
+
+    const result = await resolveIdentifier('@org/repo/path')
+    expect(result.ref).toBe('master')
+  })
+
+  it('falls back to main when API fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve({ ok: false })),
+    )
+
+    const result = await resolveIdentifier('@org/repo/path')
+    expect(result.ref).toBe('main')
+  })
+
+  it('throws on invalid identifier', async () => {
+    await expect(resolveIdentifier('bad-input')).rejects.toThrow(
+      'Must start with @',
+    )
   })
 })

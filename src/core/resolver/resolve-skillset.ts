@@ -6,15 +6,16 @@ const resolveSkillSource = (
 ): { owner: string; repository: string; basePath: string } => {
   if (source.startsWith('./')) {
     const skillsetDir = location.path.replace(/\/skillset\.yml$/, '')
+    const relativePath = source.slice(2).replace(/\/+$/, '')
     return {
       owner: location.owner,
       repository: location.repository,
-      basePath: `${skillsetDir}/${source.slice(2)}`,
+      basePath: `${skillsetDir}/${relativePath}`,
     }
   }
 
   if (source.startsWith('@')) {
-    const parts = source.slice(1).split('/')
+    const parts = source.slice(1).split('/').filter(Boolean)
     if (parts.length < 3) {
       throw new Error(
         `Invalid cross-repo source "${source}". Expected format: @owner/repo/path.`,
