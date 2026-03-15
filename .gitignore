@@ -6,7 +6,6 @@
 Thumbs.db
 
 .claude/progress/
-.tmp/
 .env
 .idea/
 .vscode/*

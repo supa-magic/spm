@@ -28,10 +28,18 @@ const resolveSkillSource = (
     }
   }
 
+  const normalized = source.replace(/^\/+/, '').replace(/\/+$/, '')
+
+  if (normalized.includes('..')) {
+    throw new Error(
+      `Invalid skill source "${source}". Path traversal ("..") is not allowed.`,
+    )
+  }
+
   return {
     owner: location.owner,
     repository: location.repository,
-    basePath: source.replace(/\/+$/, ''),
+    basePath: normalized,
   }
 }
 

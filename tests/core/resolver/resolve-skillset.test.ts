@@ -198,4 +198,21 @@ describe('resolveSkillset', () => {
       },
     ])
   })
+
+  it('rejects path traversal in bare source', () => {
+    const manifest: Skillset = {
+      name: 'fsd',
+      version: '1.0.0',
+      description: 'Test',
+      provider: 'claude',
+      skills: {
+        bad: {
+          source: '../../../etc',
+          files: ['passwd'],
+        },
+      },
+    }
+
+    expect(() => resolveSkillset(manifest, location)).toThrow('Path traversal')
+  })
 })
