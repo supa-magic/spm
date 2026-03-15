@@ -28,9 +28,11 @@ const resolveSkillSource = (
     }
   }
 
-  throw new Error(
-    `Invalid skill source "${source}". Use ./relative/path for same repo or @owner/repo/path for cross-repo.`,
-  )
+  return {
+    owner: location.owner,
+    repository: location.repository,
+    basePath: source.replace(/\/+$/, ''),
+  }
 }
 
 const resolveSkillset = (
