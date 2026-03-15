@@ -8,7 +8,8 @@ import {
 } from '@/commands'
 import { banner } from '@/utils/banner'
 
-const version = '0.1.0'
+declare const __VERSION__: string
+const version = __VERSION__
 
 const program = new Command()
 
