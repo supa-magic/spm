@@ -1,3 +1,4 @@
+const red = '\x1b[31m'
 const green = '\x1b[32m'
 const cyan = '\x1b[36m'
 const dim = '\x1b[2m'
@@ -9,4 +10,6 @@ const hint = (msg: string) => console.log(`  ${dim}${msg}${reset}`)
 const item = (label: string, value: string) =>
   console.log(`  ${dim}•${reset} ${label} ${dim}${value}${reset}`)
 
-export { hint, info, item, success }
+const error = (msg: string) => console.error(`${red}✖${reset} ${msg}`)
+
+export { error, hint, info, item, success }

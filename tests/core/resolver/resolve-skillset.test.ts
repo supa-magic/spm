@@ -174,7 +174,32 @@ describe('resolveSkillset', () => {
     expect(resolveSkillset(manifest, location)).toEqual([])
   })
 
-  it('throws on invalid skill source format', () => {
+  it('resolves bare path as repo-root relative', () => {
+    const manifest: Skillset = {
+      name: 'fsd',
+      version: '1.0.0',
+      description: 'Test',
+      provider: 'claude',
+      skills: {
+        skill: {
+          source: 'claude/skill',
+          files: ['SKILL.md'],
+        },
+      },
+    }
+
+    const entries = resolveSkillset(manifest, location)
+    expect(entries).toEqual([
+      {
+        owner: 'supa-magic',
+        repository: 'skillbox',
+        path: 'claude/skill/SKILL.md',
+        type: 'skill',
+      },
+    ])
+  })
+
+  it('rejects path traversal in bare source', () => {
     const manifest: Skillset = {
       name: 'fsd',
       version: '1.0.0',
@@ -182,14 +207,12 @@ describe('resolveSkillset', () => {
       provider: 'claude',
       skills: {
         bad: {
-          source: 'invalid-source',
-          files: ['SKILL.md'],
+          source: '../../../etc',
+          files: ['passwd'],
         },
       },
     }
 
-    expect(() => resolveSkillset(manifest, location)).toThrow(
-      'Invalid skill source',
-    )
+    expect(() => resolveSkillset(manifest, location)).toThrow('Path traversal')
   })
 })

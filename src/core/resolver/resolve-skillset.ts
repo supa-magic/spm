@@ -28,9 +28,19 @@ const resolveSkillSource = (
     }
   }
 
-  throw new Error(
-    `Invalid skill source "${source}". Use ./relative/path for same repo or @owner/repo/path for cross-repo.`,
-  )
+  const normalized = source.replace(/^\/+/, '').replace(/\/+$/, '')
+
+  if (normalized.includes('..')) {
+    throw new Error(
+      `Invalid skill source "${source}". Path traversal ("..") is not allowed.`,
+    )
+  }
+
+  return {
+    owner: location.owner,
+    repository: location.repository,
+    basePath: normalized,
+  }
 }
 
 const resolveSkillset = (

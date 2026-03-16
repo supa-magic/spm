@@ -34,6 +34,34 @@ describe('parseIdentifier', () => {
     })
   })
 
+  it('parses GitHub URL with tree/branch/path', () => {
+    expect(
+      parseIdentifier(
+        'https://github.com/supa-magic/skillbox/tree/main/claude/skill-creator',
+      ),
+    ).toEqual({
+      owner: 'supa-magic',
+      repository: 'skillbox',
+      path: 'claude/skill-creator',
+    })
+  })
+
+  it('parses GitHub URL with non-main branch', () => {
+    expect(
+      parseIdentifier('https://github.com/org/repo/tree/develop/path/to/skill'),
+    ).toEqual({
+      owner: 'org',
+      repository: 'repo',
+      path: 'path/to/skill',
+    })
+  })
+
+  it('rejects invalid GitHub URL without tree segment', () => {
+    expect(() =>
+      parseIdentifier('https://github.com/owner/repo/blob/main/file.md'),
+    ).toThrow('Invalid GitHub URL')
+  })
+
   it('rejects identifiers without @ prefix', () => {
     expect(() => parseIdentifier('supa-magic/skillbox/fsd')).toThrow(
       'Must start with @',
