@@ -63,7 +63,7 @@ describe('spawnClaude', () => {
     await expect(promise).rejects.toThrow('Claude CLI not found')
   })
 
-  it('rejects on non-zero exit code when Done was not received', async () => {
+  it('rejects on non-zero exit code', async () => {
     const child = createMockChild()
     const stepper = createMockStepper()
     mockSpawn.mockReturnValue(child as never)
@@ -72,6 +72,18 @@ describe('spawnClaude', () => {
     child.emit('close', 1)
 
     await expect(promise).rejects.toThrow('exited with code 1')
+  })
+
+  it('includes stderr in error message on non-zero exit', async () => {
+    const child = createMockChild()
+    const stepper = createMockStepper()
+    mockSpawn.mockReturnValue(child as never)
+
+    const promise = spawnClaude('/tmp/instructions.md', stepper, '.claude')
+    child.stderr.emit('data', Buffer.from('something went wrong'))
+    child.emit('close', 1)
+
+    await expect(promise).rejects.toThrow('something went wrong')
   })
 
   it('passes correct arguments to spawn', async () => {
@@ -96,7 +108,7 @@ describe('spawnClaude', () => {
         '--allowedTools',
         'Read,Write,Edit,Bash,Glob,Grep',
       ],
-      expect.objectContaining({ timeout: 120_000 }),
+      expect.objectContaining({ stdio: ['ignore', 'pipe', 'pipe'] }),
     )
   })
 

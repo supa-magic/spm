@@ -32,8 +32,7 @@ Step headers (use these exactly):
 4. `Integrating...`
 5. `Updating config...`
 6. `Running setup...` (only if a setup file exists)
-7. `Cleaning up...`
-8. `Done`
+7. `Done`
 
 Example output:
 
@@ -59,14 +58,11 @@ Updating config...
 Running setup...
   • Configured MCP server: biome
 
-Cleaning up...
-  • Removed .spm/skill-creator
-
 Done
 
 ## Step 1: Analyzing existing setup
 
-Read the provider directory (`{{providerDir}}`) and catalog what is already in place: skills, rules, agents, hooks, mcp servers, memory files.
+Read the provider directory (`{{providerDir}}`) and catalog what is already in place: skills, rules, agents, hooks, mcp servers files.
 
 ## Step 2: Analyzing downloaded files
 
@@ -107,12 +103,8 @@ Update `{{configPath}}`:
 
 {{setupSection}}
 
-## Step 7: Cleaning up (last step before Done)
-
-Delete the download folder `{{downloadDir}}` and its contents.
-
 ## Rules
 
 - Setup files are NOT installed — they contain instructions to configure the project
 - Do not delete or modify existing files in the provider directory unless resolving a conflict
-- Always delete the download folder when done
+- Do NOT delete the download folder — cleanup is handled externally

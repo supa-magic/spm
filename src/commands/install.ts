@@ -1,9 +1,14 @@
 import type { Command } from 'commander'
 import type { GitHubSource } from '@/core/downloader'
 import type { FileEntry, ResolvedLocation } from '@/core/resolver'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, normalize, resolve } from 'node:path'
-import { getConfigPath, getProjectRoot, readConfig } from '@/core/config'
+import {
+  getConfigPath,
+  getProjectRoot,
+  knownProviders,
+  readConfig,
+} from '@/core/config'
 import { downloadFile } from '@/core/downloader'
 import { installSkillset, pruneUnchanged } from '@/core/installer'
 import {
@@ -11,7 +16,7 @@ import {
   resolveIdentifier,
   resolveSkillset,
 } from '@/core/resolver'
-import { dim, green, reset } from '@/utils/ansi'
+import { cyan, dim, green, reset } from '@/utils/ansi'
 import { createStepper } from '@/utils/stepper'
 
 const toGitHubSource = (entry: FileEntry, ref: string): GitHubSource => ({
@@ -88,11 +93,18 @@ const renderTree = (node: TreeNode, prefix = ''): string[] =>
     return [`${prefix}${connector} ${name}`, ...renderTree(child, childPrefix)]
   })
 
-const printSummary = (files: string[]) => {
+const stripProviderPrefix = (file: string, prefix: string): string => {
+  const norm = prefix.replace(/\\/g, '/').replace(/^\.\//, '')
+  return file.startsWith(`${norm}/`) ? file.slice(norm.length + 1) : file
+}
+
+const printSummary = (files: string[], providerPath: string) => {
   if (files.length === 0) return
-  const unique = [...new Set(files)]
+  const unique = [...new Set(files)].map((f) =>
+    stripProviderPrefix(f, providerPath),
+  )
   const tree = buildFileTree(unique)
-  process.stdout.write(`\n📂 Installed files:\n`)
+  process.stdout.write(`\n📂${providerPath}\n`)
   renderTree(tree).forEach((line) => {
     process.stdout.write(`  ${dim}${line}${reset}\n`)
   })
@@ -108,7 +120,7 @@ const registerInstallCommand = (program: Command) => {
       const startedAt = Date.now()
 
       try {
-        const { config } = readConfig()
+        readConfig()
 
         stepper.start('Resolving endpoint...', 'packages')
         const location = await resolveIdentifier(input)
@@ -122,17 +134,15 @@ const registerInstallCommand = (program: Command) => {
           `${skillset.name} v${skillset.version}`,
         )
 
-        const providerEntry = Object.entries(config.providers).find(
-          ([name]) => name === skillset.provider,
-        )
+        const providerPath = knownProviders[skillset.provider]
 
-        if (!providerEntry) {
+        if (!providerPath) {
           throw new Error(
-            `Provider "${skillset.provider}" not found in config. Run "spm init" to detect providers.`,
+            `Unknown provider "${skillset.provider}". Known providers: ${Object.keys(knownProviders).join(', ')}`,
           )
         }
 
-        const [, provider] = providerEntry
+        const provider = { path: providerPath }
 
         const entries = resolveSkillset(skillset, location)
         if (entries.length === 0) {
@@ -183,18 +193,23 @@ const registerInstallCommand = (program: Command) => {
           stepper.succeed(`Skipped ${pruned} unchanged file(s)`)
         }
 
+        const model = skillset.provider === 'claude' ? 'haiku' : undefined
+
         const result = await installSkillset(
           {
             downloadDir,
             setupFile,
-            providerDir: provider.path,
+            providerDir: providerFullPath,
             skillsetName: skillset.name,
             skillsetVersion: skillset.version,
             source: `@${location.owner}/${location.repository}`,
             configPath: getConfigPath(),
+            model,
           },
           stepper,
         )
+
+        await rm(downloadDir, { recursive: true, force: true })
 
         stepper.stop()
 
@@ -209,7 +224,11 @@ const registerInstallCommand = (program: Command) => {
 
         const summaryFiles =
           result.files.length > 0 ? result.files : downloadedPaths
-        printSummary(summaryFiles)
+        printSummary(summaryFiles, provider.path)
+
+        process.stdout.write(
+          `\n🪄  ${cyan}Restart your AI agent to apply the new skills.${reset}\n`,
+        )
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err)
         stepper.fail(message)
