@@ -177,8 +177,11 @@ const spawnClaude = (
             ) {
               const filePath = block.input?.file_path
               if (typeof filePath === 'string') {
+                const normalized = filePath.replace(/\\/g, '/')
+                const base = providerDir.replace(/\\/g, '/')
+                const isProviderFile = normalized.includes(`${base}/`)
                 const relative = toRelativePath(filePath, providerDir)
-                writtenFiles.push(relative)
+                if (isProviderFile) writtenFiles.push(relative)
                 stepFileCount++
                 if (currentStepHeader.startsWith('Integrating')) {
                   stepper.item(relative)
