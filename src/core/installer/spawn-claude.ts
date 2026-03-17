@@ -77,8 +77,11 @@ const spawnClaude = (
       'Read,Write,Edit,Bash,Glob,Grep',
     ]
 
+    const isWindows = process.platform === 'win32'
+
     const child = spawn('claude', args, {
       timeout: TIMEOUT_MS,
+      shell: isWindows,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
 
