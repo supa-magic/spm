@@ -6,6 +6,7 @@ type InstallInput = {
   skillsetVersion: string
   source: string
   configPath: string
+  model?: string
 }
 
 type InstallResult = {

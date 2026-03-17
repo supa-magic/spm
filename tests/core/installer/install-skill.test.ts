@@ -57,6 +57,7 @@ describe('installSkillset', () => {
       '/tmp/spm/install-dev-tools.md',
       stepper,
       '.claude',
+      undefined,
     )
   })
 

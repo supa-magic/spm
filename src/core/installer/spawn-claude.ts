@@ -2,8 +2,6 @@ import type { FunCategory, Stepper } from '@/utils/stepper'
 import type { InstallResult } from './types'
 import { spawn } from 'node:child_process'
 
-const TIMEOUT_MS = 120_000
-
 type ContentBlock = {
   type: string
   text?: string
@@ -63,6 +61,7 @@ const spawnClaude = (
   instructionsFilePath: string,
   stepper: Stepper,
   providerDir: string,
+  model?: string,
 ): Promise<InstallResult> =>
   new Promise((resolve, reject) => {
     const args = [
@@ -75,12 +74,12 @@ const spawnClaude = (
       'stream-json',
       '--allowedTools',
       'Read,Write,Edit,Bash,Glob,Grep',
+      ...(model ? ['--model', model] : []),
     ]
 
     const isWindows = process.platform === 'win32'
 
     const child = spawn('claude', args, {
-      timeout: TIMEOUT_MS,
       shell: isWindows,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
@@ -90,7 +89,7 @@ const spawnClaude = (
     let currentStepHeader = 'Analyzing existing setup...'
     let stepItems: string[] = []
     let stepFileCount = 0
-    const state = { doneReceived: false }
+    const state = { doneReceived: false, setupReached: false }
     const writtenFiles: string[] = []
 
     const succeedCurrentStep = () => {
@@ -114,10 +113,12 @@ const spawnClaude = (
       }
 
       if (currentStepHeader.startsWith('Running setup')) {
-        const context = stepItems.length === 1 ? stepItems[0] : undefined
-        stepper.succeed('Skillset setup completed', context)
+        stepper.succeed('Skillset setup completed')
+        currentStepHeader = ''
         return
       }
+
+      if (state.setupReached || currentStepHeader.startsWith('Cleaning')) return
 
       const context = stepItems.length === 1 ? stepItems[0] : undefined
       stepper.succeed(base, context)
@@ -160,9 +161,14 @@ const spawnClaude = (
                 if (isStepHeader(ln, trimmed)) {
                   if (trimmed === currentStepHeader) return
                   succeedCurrentStep()
+                  if (state.setupReached || trimmed.startsWith('Cleaning'))
+                    return
                   currentStepHeader = trimmed
                   stepItems = []
                   stepFileCount = 0
+                  if (trimmed.startsWith('Running setup')) {
+                    state.setupReached = true
+                  }
                   stepper.start(trimmed, stepCategory(trimmed))
                 } else if (!currentStepHeader.startsWith('Integrating')) {
                   stepItems.push(trimmed)
@@ -195,7 +201,10 @@ const spawnClaude = (
       })
     })
 
-    child.stderr.on('data', () => {})
+    let stderrBuffer = ''
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderrBuffer += chunk.toString()
+    })
 
     child.on('error', (err) => {
       if ('code' in err && err.code === 'ENOENT') {
@@ -216,13 +225,19 @@ const spawnClaude = (
 
       const completed = state.doneReceived || resultText.length > 0
 
+      const stderr = stderrBuffer.trim()
+
       if (code !== 0 && code !== null) {
-        reject(new Error(`Claude CLI exited with code ${code}`))
+        const detail = stderr ? `\n${stderr}` : ''
+        reject(new Error(`Claude CLI exited with code ${code}${detail}`))
         return
       }
 
-      if (code === null && !completed) {
-        reject(new Error('Claude CLI was interrupted before completing'))
+      if (code === null) {
+        const detail = stderr ? `\n${stderr}` : ''
+        reject(
+          new Error(`Claude CLI was interrupted before completing${detail}`),
+        )
         return
       }
 
