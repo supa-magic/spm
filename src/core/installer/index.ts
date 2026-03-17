@@ -1,0 +1,5 @@
+export type { InstallInput, InstallResult } from './types'
+export { buildInstructions, writeInstructionsFile } from './build-prompt'
+export { installSkillset } from './install-skill'
+export { pruneUnchanged } from './prune-unchanged'
+export { spawnClaude } from './spawn-claude'

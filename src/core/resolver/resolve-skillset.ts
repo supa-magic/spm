@@ -60,17 +60,20 @@ const resolveSkillset = (
   }
 
   if (skillset.skills) {
-    Object.values(skillset.skills).forEach(({ source, files }) => {
-      const resolved = resolveSkillSource(source, location)
-      files.forEach((file) => {
-        entries.push({
-          owner: resolved.owner,
-          repository: resolved.repository,
-          path: `${resolved.basePath}/${file}`,
-          type: 'skill',
+    Object.entries(skillset.skills).forEach(
+      ([skillName, { source, files }]) => {
+        const resolved = resolveSkillSource(source, location)
+        files.forEach((file) => {
+          entries.push({
+            owner: resolved.owner,
+            repository: resolved.repository,
+            path: `${resolved.basePath}/${file}`,
+            type: 'skill',
+            skillName,
+          })
         })
-      })
-    })
+      },
+    )
   }
 
   const localFileTypes = ['agents', 'hooks', 'mcp', 'memory', 'rules'] as const

@@ -47,6 +47,6 @@ describe('spm cli', () => {
 
   it('runs install and starts resolving', async () => {
     const { stdout } = await run('install', 'test-skillset')
-    expect(stdout).toContain('Resolving test-skillset')
+    expect(stdout).toContain('Resolving endpoint')
   })
 })
