@@ -154,7 +154,10 @@ describe('spawnClaude', () => {
       'Analyzing existing setup...',
       'skills',
     )
-    expect(stepper.item).toHaveBeenCalledWith('4 skills, 2 rules')
+    expect(stepper.succeed).toHaveBeenCalledWith(
+      'Analyzed existing setup',
+      '4 skills, 2 rules',
+    )
   })
 
   it('tracks written files from tool_use events', async () => {

@@ -95,7 +95,10 @@ const renderTree = (node: TreeNode, prefix = ''): string[] =>
 
 const stripProviderPrefix = (file: string, prefix: string): string => {
   const norm = prefix.replace(/\\/g, '/').replace(/^\.\//, '')
-  return file.startsWith(`${norm}/`) ? file.slice(norm.length + 1) : file
+  if (file.startsWith(`${norm}/`)) return file.slice(norm.length + 1)
+  const bare = norm.replace(/^\./, '')
+  if (bare && file.startsWith(`${bare}/`)) return file.slice(bare.length + 1)
+  return file
 }
 
 const printSummary = (files: string[], providerPath: string) => {
@@ -153,13 +156,21 @@ const registerInstallCommand = (program: Command) => {
 
         const projectRoot = getProjectRoot()
         const downloadDir = join(projectRoot, '.spm', skillset.name)
-        const skillsetDir = location.path.replace(/\/[^/]+$/, '')
-        const stripPrefix = (p: string) =>
-          p.startsWith(`${skillsetDir}/`) ? p.slice(skillsetDir.length + 1) : p
+
+        const toTargetPath = (entry: FileEntry): string => {
+          if (entry.type === 'skill' && entry.skillName) {
+            const fileName = entry.path.split('/').pop() ?? entry.path
+            return `skills/${entry.skillName}/${fileName}`
+          }
+          const skillsetDir = location.path.replace(/\/[^/]+$/, '')
+          return entry.path.startsWith(`${skillsetDir}/`)
+            ? entry.path.slice(skillsetDir.length + 1)
+            : entry.path
+        }
 
         stepper.start(`Downloading ${entries.length} file(s)...`, 'packages')
         const results = await downloadEntries(entries, location, (type, path) =>
-          stepper.item(`${type} ${stripPrefix(path)}`),
+          stepper.item(`${type} ${path.split('/').pop() ?? path}`),
         )
 
         const setupResults = results.filter((r) => r.type === 'setup')
@@ -167,8 +178,8 @@ const registerInstallCommand = (program: Command) => {
 
         await Promise.all(
           installResults.map(async (result) => {
-            const relative = stripPrefix(result.path)
-            const filePath = safePath(downloadDir, relative)
+            const target = toTargetPath(result)
+            const filePath = safePath(downloadDir, target)
             await mkdir(dirname(filePath), { recursive: true })
             await writeFile(filePath, result.content, 'utf-8')
           }),
@@ -177,15 +188,14 @@ const registerInstallCommand = (program: Command) => {
         let setupFile: string | undefined
         if (setupResults.length > 0) {
           const setup = setupResults[0]
-          const relative = stripPrefix(setup.path)
-          setupFile = join(downloadDir, relative)
+          setupFile = join(downloadDir, 'SETUP.md')
           await mkdir(dirname(setupFile), { recursive: true })
           await writeFile(setupFile, setup.content, 'utf-8')
         }
 
         stepper.succeed(`Downloaded ${results.length} file(s)`)
 
-        const downloadedPaths = installResults.map((r) => stripPrefix(r.path))
+        const downloadedPaths = installResults.map((r) => toTargetPath(r))
         const providerFullPath = join(projectRoot, provider.path)
         const pruned = pruneUnchanged(downloadDir, providerFullPath)
 

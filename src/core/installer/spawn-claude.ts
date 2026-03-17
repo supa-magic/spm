@@ -120,7 +120,7 @@ const spawnClaude = (
 
       if (state.setupReached || currentStepHeader.startsWith('Cleaning')) return
 
-      const context = stepItems.length === 1 ? stepItems[0] : undefined
+      const context = stepItems.length > 0 ? stepItems.join(', ') : undefined
       stepper.succeed(base, context)
     }
 
@@ -170,9 +170,11 @@ const spawnClaude = (
                     state.setupReached = true
                   }
                   stepper.start(trimmed, stepCategory(trimmed))
-                } else if (!currentStepHeader.startsWith('Integrating')) {
+                } else {
                   stepItems.push(trimmed)
-                  stepper.item(trimmed)
+                  if (currentStepHeader.startsWith('Integrating')) {
+                    stepper.item(trimmed)
+                  }
                 }
               })
             }
