@@ -31,12 +31,14 @@ describe('resolveSkillset', () => {
         repository: 'skillbox',
         path: 'claude/fsd/skills/git/SKILL.md',
         type: 'skill',
+        skillName: 'git',
       },
       {
         owner: 'supa-magic',
         repository: 'skillbox',
         path: 'claude/fsd/skills/git/branch.md',
         type: 'skill',
+        skillName: 'git',
       },
     ])
   })
@@ -62,12 +64,14 @@ describe('resolveSkillset', () => {
         repository: 'awesome-claude-skills',
         path: 'lint/SKILL.md',
         type: 'skill',
+        skillName: 'linting',
       },
       {
         owner: 'ComposioHQ',
         repository: 'awesome-claude-skills',
         path: 'lint/eslint.md',
         type: 'skill',
+        skillName: 'linting',
       },
     ])
   })
@@ -195,6 +199,7 @@ describe('resolveSkillset', () => {
         repository: 'skillbox',
         path: 'claude/skill/SKILL.md',
         type: 'skill',
+        skillName: 'skill',
       },
     ])
   })

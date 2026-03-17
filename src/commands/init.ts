@@ -1,26 +1,32 @@
 import type { Command } from 'commander'
 import { CONFIG_FILE, readConfig } from '@/core/config'
-import { hint, info, item, success } from '@/utils/log'
+import { createStepper } from '@/utils/stepper'
 
 const registerInitCommand = (program: Command) => {
   program
     .command('init')
     .description('Initialize project configuration (.spmrc.yml)')
     .action(() => {
+      const stepper = createStepper()
       const { config, created } = readConfig()
       const providers = Object.keys(config.providers)
 
       if (created) {
-        success(`Created ${CONFIG_FILE}`)
+        stepper.succeed(`Created ${CONFIG_FILE}`)
       } else {
-        info(`${CONFIG_FILE} already exists`)
+        stepper.succeed(`${CONFIG_FILE} already exists`)
       }
 
+      stepper.start('Detecting providers...', 'generic')
+      providers.forEach((name) => stepper.item(name))
+
       if (providers.length > 0) {
-        providers.forEach((name) => item(name, config.providers[name].path))
+        stepper.succeed(`Detected ${providers.length} provider(s)`)
       } else {
-        hint('No providers detected')
+        stepper.fail('No providers detected')
       }
+
+      stepper.stop()
     })
 }
 

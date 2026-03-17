@@ -30,6 +30,7 @@ type FileEntry = {
   repository: string
   path: string
   type: 'skill' | 'agent' | 'hook' | 'mcp' | 'memory' | 'rule' | 'setup'
+  skillName?: string
 }
 
 export type { FileEntry, ResolvedLocation, SkillIdentifier, Skillset }
