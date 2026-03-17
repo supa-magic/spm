@@ -28,11 +28,14 @@
   },
   "scripts": {
     "build": "vite build",
+    "install": "npm install @supa-magic/spm",
+    "link": "npm link",
     "pretest": "npm run build",
     "start": "clear && claude --dangerously-skip-permissions",
     "test": "vitest run",
     "test:watch": "vitest",
-    "tokscale": "npx tokscale@latest"
+    "un": "npm uninstall @supa-magic/spm",
+    "unlink": "npm unlink spm"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.6",
@@ -43,6 +46,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "@supa-magic/spm": "^0.2.3",
     "commander": "^14.0.3",
     "yaml": "^2.8.2"
   }
