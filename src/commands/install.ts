@@ -1,7 +1,7 @@
 import type { Command } from 'commander'
 import type { GitHubSource } from '@/core/downloader'
 import type { FileEntry, ResolvedLocation } from '@/core/resolver'
-import { mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, normalize, resolve } from 'node:path'
 import {
   getConfigPath,
@@ -220,6 +220,9 @@ const registerInstallCommand = (program: Command) => {
         )
 
         await rm(downloadDir, { recursive: true, force: true })
+        const spmDir = join(projectRoot, '.spm')
+        const remaining = await readdir(spmDir).catch(() => [])
+        if (remaining.length === 0) await rm(spmDir, { force: true })
 
         stepper.stop()
 
