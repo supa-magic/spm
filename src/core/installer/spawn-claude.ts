@@ -79,7 +79,6 @@ const spawnClaude = (
 
     const child = spawn('claude', args, {
       timeout: TIMEOUT_MS,
-      shell: true,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
 
@@ -88,6 +87,7 @@ const spawnClaude = (
     let currentStepHeader = 'Analyzing existing setup...'
     let stepItems: string[] = []
     let stepFileCount = 0
+    const state = { doneReceived: false }
     const writtenFiles: string[] = []
 
     const succeedCurrentStep = () => {
@@ -150,6 +150,7 @@ const spawnClaude = (
                 if (trimmed === 'Done') {
                   succeedCurrentStep()
                   currentStepHeader = ''
+                  state.doneReceived = true
                   return
                 }
 
@@ -207,8 +208,15 @@ const spawnClaude = (
         succeedCurrentStep()
       }
 
-      if (code !== null && code !== 0) {
+      const completed = state.doneReceived || resultText.length > 0
+
+      if (code !== 0 && code !== null) {
         reject(new Error(`Claude CLI exited with code ${code}`))
+        return
+      }
+
+      if (code === null && !completed) {
+        reject(new Error('Claude CLI was interrupted before completing'))
         return
       }
 

@@ -143,10 +143,13 @@ const registerInstallCommand = (program: Command) => {
 
         const projectRoot = getProjectRoot()
         const downloadDir = join(projectRoot, '.spm', skillset.name)
+        const skillsetDir = location.path.replace(/\/[^/]+$/, '')
+        const stripPrefix = (p: string) =>
+          p.startsWith(`${skillsetDir}/`) ? p.slice(skillsetDir.length + 1) : p
 
         stepper.start(`Downloading ${entries.length} file(s)...`, 'packages')
         const results = await downloadEntries(entries, location, (type, path) =>
-          stepper.item(`${type} ${path}`),
+          stepper.item(`${type} ${stripPrefix(path)}`),
         )
 
         const setupResults = results.filter((r) => r.type === 'setup')
@@ -154,7 +157,8 @@ const registerInstallCommand = (program: Command) => {
 
         await Promise.all(
           installResults.map(async (result) => {
-            const filePath = safePath(downloadDir, result.path)
+            const relative = stripPrefix(result.path)
+            const filePath = safePath(downloadDir, relative)
             await mkdir(dirname(filePath), { recursive: true })
             await writeFile(filePath, result.content, 'utf-8')
           }),
@@ -163,19 +167,15 @@ const registerInstallCommand = (program: Command) => {
         let setupFile: string | undefined
         if (setupResults.length > 0) {
           const setup = setupResults[0]
-          setupFile = join(downloadDir, setup.path)
+          const relative = stripPrefix(setup.path)
+          setupFile = join(downloadDir, relative)
           await mkdir(dirname(setupFile), { recursive: true })
           await writeFile(setupFile, setup.content, 'utf-8')
         }
 
         stepper.succeed(`Downloaded ${results.length} file(s)`)
 
-        const skillsetDir = location.path.replace(/\/[^/]+$/, '')
-        const downloadedPaths = installResults.map((r) =>
-          r.path.startsWith(`${skillsetDir}/`)
-            ? r.path.slice(skillsetDir.length + 1)
-            : r.path,
-        )
+        const downloadedPaths = installResults.map((r) => stripPrefix(r.path))
         const providerFullPath = join(projectRoot, provider.path)
         const pruned = pruneUnchanged(downloadDir, providerFullPath)
 

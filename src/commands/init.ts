@@ -17,6 +17,7 @@ const registerInitCommand = (program: Command) => {
         stepper.succeed(`${CONFIG_FILE} already exists`)
       }
 
+      stepper.start('Detecting providers...', 'generic')
       providers.forEach((name) => stepper.item(name))
 
       if (providers.length > 0) {

@@ -1,7 +1,7 @@
 import type { InstallInput } from './types'
-import { writeFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import template from './install.md?raw'
 
 const buildSetupSection = (setupFile?: string): string =>
@@ -27,6 +27,7 @@ const buildInstructions = (input: InstallInput): string =>
 
 const writeInstructionsFile = (input: InstallInput): string => {
   const filePath = join(tmpdir(), 'spm', `install-${input.skillsetName}.md`)
+  mkdirSync(dirname(filePath), { recursive: true })
   writeFileSync(filePath, buildInstructions(input), 'utf-8')
   return filePath
 }

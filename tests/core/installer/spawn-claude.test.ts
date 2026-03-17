@@ -96,7 +96,7 @@ describe('spawnClaude', () => {
         '--allowedTools',
         'Read,Write,Edit,Bash,Glob,Grep',
       ],
-      expect.objectContaining({ shell: true }),
+      expect.not.objectContaining({ shell: true }),
     )
   })
 
