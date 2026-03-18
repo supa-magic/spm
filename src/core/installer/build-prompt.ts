@@ -1,8 +1,9 @@
-import type { InstallInput } from './types'
+import type { InstallInput, SkillInstallInput } from './types'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import template from './install.md?raw'
+import skillTemplate from './install-skill.md?raw'
 
 const buildSetupSection = (setupFile?: string): string =>
   setupFile
@@ -32,4 +33,24 @@ const writeInstructionsFile = (input: InstallInput): string => {
   return filePath
 }
 
-export { buildInstructions, writeInstructionsFile }
+const buildSkillInstructions = (input: SkillInstallInput): string =>
+  skillTemplate
+    .replace(/\{\{downloadDir\}\}/g, input.downloadDir)
+    .replace(/\{\{providerDir\}\}/g, input.providerDir)
+    .replace(/\{\{skillName\}\}/g, input.skillName)
+    .replace(/\{\{source\}\}/g, input.source)
+    .replace(/\{\{configPath\}\}/g, input.configPath)
+
+const writeSkillInstructionsFile = (input: SkillInstallInput): string => {
+  const filePath = join(tmpdir(), 'spm', `install-skill-${input.skillName}.md`)
+  mkdirSync(dirname(filePath), { recursive: true })
+  writeFileSync(filePath, buildSkillInstructions(input), 'utf-8')
+  return filePath
+}
+
+export {
+  buildInstructions,
+  buildSkillInstructions,
+  writeInstructionsFile,
+  writeSkillInstructionsFile,
+}
