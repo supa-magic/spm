@@ -12,11 +12,16 @@ const providerPrefixes = [
   '.cody/',
 ]
 
-const isExcluded = (ref: string): boolean =>
-  ref.startsWith('http://') ||
-  ref.startsWith('https://') ||
-  ref.includes('..') ||
-  providerPrefixes.some((prefix) => ref.startsWith(prefix))
+const isExcluded = (ref: string): boolean => {
+  const normalized = ref.replace(/^\.\//, '')
+  return (
+    ref.startsWith('http://') ||
+    ref.startsWith('https://') ||
+    ref.startsWith('/') ||
+    ref.includes('..') ||
+    providerPrefixes.some((prefix) => normalized.startsWith(prefix))
+  )
+}
 
 const parseSkillRefs = (content: string, fileDir: string): string[] => {
   const refs = new Set<string>()

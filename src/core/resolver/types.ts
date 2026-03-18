@@ -2,6 +2,7 @@ type SkillIdentifier = {
   owner: string
   repository: string
   path: string
+  ref?: string
 }
 
 type Skillset = {

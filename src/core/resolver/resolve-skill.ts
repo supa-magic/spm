@@ -8,7 +8,9 @@ import { parseSkillRefs } from './parse-skill-refs'
 const resolveSkill = async (
   identifier: SkillIdentifier,
 ): Promise<ResolvedSkill> => {
-  const ref = await fetchDefaultBranch(identifier.owner, identifier.repository)
+  const ref =
+    identifier.ref ??
+    (await fetchDefaultBranch(identifier.owner, identifier.repository))
 
   const visited = new Set<string>()
   const files: Array<{ path: string; content: string }> = []

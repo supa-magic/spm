@@ -1,29 +1,31 @@
 import type { ParsedIdentifier, SkillIdentifier } from './types'
 
 const detectKind = (path: string): ParsedIdentifier['kind'] =>
-  path.endsWith('.md') ? 'skill' : 'skillset'
+  /\.md$/i.test(path) ? 'skill' : 'skillset'
 
 const parseGitHubUrl = (url: string): ParsedIdentifier | undefined => {
   const blobOrTree = url.match(
-    /^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:tree|blob)\/[^/]+\/(.+)$/,
+    /^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:tree|blob)\/([^/]+)\/(.+)$/,
   )
   if (blobOrTree) {
     const identifier: SkillIdentifier = {
       owner: blobOrTree[1],
       repository: blobOrTree[2],
-      path: blobOrTree[3],
+      path: blobOrTree[4],
+      ref: blobOrTree[3],
     }
     return { kind: detectKind(identifier.path), identifier }
   }
 
   const raw = url.match(
-    /^https?:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/[^/]+\/(.+)$/,
+    /^https?:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/,
   )
   if (raw) {
     const identifier: SkillIdentifier = {
       owner: raw[1],
       repository: raw[2],
-      path: raw[3],
+      path: raw[4],
+      ref: raw[3],
     }
     return { kind: detectKind(identifier.path), identifier }
   }
@@ -56,7 +58,7 @@ const parseIdentifier = (input: string): ParsedIdentifier => {
     const result = parseGitHubUrl(trimmed)
     if (!result) {
       throw new Error(
-        `Invalid GitHub URL "${trimmed}". Expected format: https://github.com/owner/repo/tree/branch/path or https://raw.githubusercontent.com/owner/repo/ref/path.`,
+        `Invalid GitHub URL "${trimmed}". Expected format: https://github.com/owner/repo/tree|blob/branch/path or https://raw.githubusercontent.com/owner/repo/ref/path.`,
       )
     }
     return result

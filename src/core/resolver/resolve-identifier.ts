@@ -5,7 +5,9 @@ import { parseIdentifier } from './parse-identifier'
 const resolveIdentifier = async (input: string): Promise<ResolvedLocation> => {
   const parsed = parseIdentifier(input)
   const { identifier } = parsed
-  const ref = await fetchDefaultBranch(identifier.owner, identifier.repository)
+  const ref =
+    identifier.ref ??
+    (await fetchDefaultBranch(identifier.owner, identifier.repository))
 
   return {
     owner: identifier.owner,
