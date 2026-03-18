@@ -15,4 +15,13 @@ type InstallResult = {
   files: string[]
 }
 
-export type { InstallInput, InstallResult }
+type SkillInstallInput = {
+  downloadDir: string
+  providerDir: string
+  skillName: string
+  source: string
+  configPath: string
+  model?: string
+}
+
+export type { InstallInput, InstallResult, SkillInstallInput }

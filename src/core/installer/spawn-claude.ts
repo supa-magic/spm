@@ -62,6 +62,7 @@ const spawnClaude = (
   stepper: Stepper,
   providerDir: string,
   model?: string,
+  entityLabel = 'Skillset',
 ): Promise<InstallResult> =>
   new Promise((resolve, reject) => {
     const args = [
@@ -106,14 +107,14 @@ const spawnClaude = (
       if (currentStepHeader.startsWith('Integrating')) {
         stepper.succeed(
           stepFileCount > 0
-            ? `Skillset was integrated (${stepFileCount} file(s))`
-            : 'Skillset was integrated',
+            ? `${entityLabel} was integrated (${stepFileCount} file(s))`
+            : `${entityLabel} was integrated`,
         )
         return
       }
 
       if (currentStepHeader.startsWith('Running setup')) {
-        stepper.succeed('Skillset setup completed')
+        stepper.succeed(`${entityLabel} setup completed`)
         currentStepHeader = ''
         return
       }

@@ -2,6 +2,7 @@ type SkillIdentifier = {
   owner: string
   repository: string
   path: string
+  ref?: string
 }
 
 type Skillset = {
@@ -33,4 +34,21 @@ type FileEntry = {
   skillName?: string
 }
 
-export type { FileEntry, ResolvedLocation, SkillIdentifier, Skillset }
+type ParsedIdentifier =
+  | { kind: 'skillset'; identifier: SkillIdentifier }
+  | { kind: 'skill'; identifier: SkillIdentifier }
+
+type ResolvedSkill = {
+  name: string
+  location: ResolvedLocation
+  files: Array<{ path: string; content: string }>
+}
+
+export type {
+  FileEntry,
+  ParsedIdentifier,
+  ResolvedLocation,
+  ResolvedSkill,
+  SkillIdentifier,
+  Skillset,
+}
