@@ -28,16 +28,6 @@ describe('buildInstructions', () => {
     expect(instructions).toContain('1.0.0')
   })
 
-  it('includes source reference', () => {
-    const instructions = buildInstructions(defaultInput)
-    expect(instructions).toContain('@supa-magic/skillbox')
-  })
-
-  it('includes config path', () => {
-    const instructions = buildInstructions(defaultInput)
-    expect(instructions).toContain('.spmrc.yml')
-  })
-
   it('contains integration instructions', () => {
     const instructions = buildInstructions(defaultInput)
     expect(instructions).toContain('Analyzing existing setup')

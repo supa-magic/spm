@@ -4,6 +4,7 @@ import type { FileEntry, ResolvedLocation } from '@/core/resolver'
 import { mkdir, readdir, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, normalize, posix, resolve } from 'node:path'
 import {
+  addConfigEntry,
   getConfigPath,
   getProjectRoot,
   knownProviders,
@@ -217,6 +218,8 @@ const installSkillsetFlow = async (
 
   const model = skillset.provider === 'claude' ? 'haiku' : undefined
 
+  const source = `https://github.com/${location.owner}/${location.repository}/blob/${location.ref}/${location.path}`
+
   const result = await installSkillset(
     {
       downloadDir,
@@ -224,12 +227,19 @@ const installSkillsetFlow = async (
       providerDir: providerFullPath,
       skillsetName: skillset.name,
       skillsetVersion: skillset.version,
-      source: `@${location.owner}/${location.repository}`,
+      source,
       configPath: getConfigPath(),
       model,
     },
     stepper,
   )
+
+  addConfigEntry({
+    providerPath: provider.path,
+    kind: 'skillsets',
+    name: skillset.name,
+    source,
+  })
 
   await rm(downloadDir, { recursive: true, force: true })
   const spmDir = join(projectRoot, '.spm')
@@ -297,7 +307,7 @@ const installSkillFlow = async (
   }
 
   const model = providerName === 'claude' ? 'haiku' : undefined
-  const source = `@${resolved.location.owner}/${resolved.location.repository}`
+  const source = `https://github.com/${resolved.location.owner}/${resolved.location.repository}/blob/${resolved.location.ref}/${resolved.location.path}`
 
   const result = await installSingleSkill(
     {
@@ -310,6 +320,13 @@ const installSkillFlow = async (
     },
     stepper,
   )
+
+  addConfigEntry({
+    providerPath: providerPath,
+    kind: 'skills',
+    name: resolved.name,
+    source,
+  })
 
   await rm(downloadDir, { recursive: true, force: true })
   const spmDir = join(projectRoot, '.spm')

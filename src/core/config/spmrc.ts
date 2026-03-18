@@ -39,8 +39,38 @@ const writeConfig = (config: ProjectConfig, root?: string): void => {
   writeFileSync(configPath, stringify(config), 'utf-8')
 }
 
+type AddEntryParams = {
+  providerPath: string
+  kind: 'skills' | 'skillsets'
+  name: string
+  source: string
+}
+
+const addConfigEntry = ({
+  providerPath,
+  kind,
+  name,
+  source,
+}: AddEntryParams): void => {
+  const { config } = readConfig()
+  const provider = Object.values(config.providers).find(
+    (p) => p.path === providerPath,
+  )
+
+  if (!provider) {
+    throw new Error(`Provider with path "${providerPath}" not found in config`)
+  }
+
+  if (!provider[kind]) {
+    provider[kind] = {}
+  }
+  provider[kind][name] = source
+  writeConfig(config)
+}
+
 export {
   CONFIG_FILE,
+  addConfigEntry,
   createDefaultConfig,
   getConfigPath,
   readConfig,

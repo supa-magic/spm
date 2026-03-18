@@ -7,10 +7,8 @@ You are integrating a single skill into the project. Analyze the existing projec
 - **Downloaded files**: `{{downloadDir}}`
 - **Provider directory**: `{{providerDir}}`
 - **Skill**: `{{skillName}}`
-- **Source**: `{{source}}`
-- **Config file**: `{{configPath}}`
 
-Identical files have already been removed from the download folder. Only files that need action remain. If the download folder is empty, skip to the config update step.
+Identical files have already been removed from the download folder. Only files that need action remain. If the download folder is empty, output `Done` immediately.
 
 ## Output Format
 
@@ -30,8 +28,7 @@ Step headers (use these exactly):
 2. `Analyzing downloaded files...`
 3. `Detecting conflicts...`
 4. `Integrating...`
-5. `Updating config...`
-6. `Done`
+5. `Done`
 
 Example output:
 
@@ -47,9 +44,6 @@ Detecting conflicts...
 Integrating...
   • skills/git/SKILL.md
   • skills/git/branch.md
-
-Updating config...
-  • skill: git
 
 Done
 
@@ -84,14 +78,6 @@ Install files into `{{providerDir}}/skills/{{skillName}}/`, following the direct
 - If the project has `rules/coding.md` with specific conventions → make new skills follow those rules instead of their own defaults
 - If existing skills handle branching or committing → reference them instead of duplicating instructions
 - If the project has naming conventions, testing patterns, or architectural rules → align new skills with them
-
-## Step 5: Updating config
-
-Update `{{configPath}}`:
-
-- Under the provider with path `{{providerDir}}`, add the skill entry under `skills`:
-  `{{skillName}}: "{{source}}"`
-- The `skillsets` map is reserved for skillset installations
 
 ## Rules
 

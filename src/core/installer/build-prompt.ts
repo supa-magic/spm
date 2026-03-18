@@ -22,8 +22,6 @@ const buildInstructions = (input: InstallInput): string =>
     .replace(/\{\{providerDir\}\}/g, input.providerDir)
     .replace(/\{\{skillsetName\}\}/g, input.skillsetName)
     .replace(/\{\{skillsetVersion\}\}/g, input.skillsetVersion)
-    .replace(/\{\{source\}\}/g, input.source)
-    .replace(/\{\{configPath\}\}/g, input.configPath)
     .replace('{{setupSection}}', buildSetupSection(input.setupFile))
 
 const writeInstructionsFile = (input: InstallInput): string => {
@@ -38,8 +36,6 @@ const buildSkillInstructions = (input: SkillInstallInput): string =>
     .replace(/\{\{downloadDir\}\}/g, input.downloadDir)
     .replace(/\{\{providerDir\}\}/g, input.providerDir)
     .replace(/\{\{skillName\}\}/g, input.skillName)
-    .replace(/\{\{source\}\}/g, input.source)
-    .replace(/\{\{configPath\}\}/g, input.configPath)
 
 const writeSkillInstructionsFile = (input: SkillInstallInput): string => {
   const filePath = join(tmpdir(), 'spm', `install-skill-${input.skillName}.md`)

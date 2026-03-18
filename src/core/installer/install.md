@@ -7,10 +7,8 @@ You are integrating a new skillset into the project. Analyze the existing projec
 - **Downloaded files**: `{{downloadDir}}`
 - **Provider directory**: `{{providerDir}}`
 - **Skillset**: `{{skillsetName}}` v`{{skillsetVersion}}`
-- **Source**: `{{source}}`
-- **Config file**: `{{configPath}}`
 
-Identical files have already been removed from the download folder. Only files that need action remain. If the download folder is empty, skip to the config update step.
+Identical files have already been removed from the download folder. Only files that need action remain. If the download folder is empty, output `Done` immediately.
 
 ## Output Format
 
@@ -30,9 +28,8 @@ Step headers (use these exactly):
 2. `Analyzing downloaded files...`
 3. `Detecting conflicts...`
 4. `Integrating...`
-5. `Updating config...`
-6. `Running setup...` (only if a setup file exists)
-7. `Done`
+5. `Running setup...` (only if a setup file exists)
+6. `Done`
 
 Example output:
 
@@ -51,9 +48,6 @@ Integrating...
   • skills/git/SKILL.md
   • skills/git/branch.md
   • skills/github/SKILL.md
-
-Updating config...
-  • skillset: skill-creator@1.0.0
 
 Running setup...
   • Configured MCP server: biome
@@ -91,15 +85,6 @@ Install files into `{{providerDir}}`, following the directory structure from the
 - If the project has `rules/coding.md` with specific conventions → make new skills follow those rules instead of their own defaults
 - If existing skills handle branching or committing → reference them instead of duplicating instructions
 - If the project has naming conventions, testing patterns, or architectural rules → align new skills with them
-
-## Step 5: Updating config
-
-Update `{{configPath}}`:
-
-- Under the provider with path `{{providerDir}}`, add the skillset entry under `skillsets`:
-  `{{skillsetName}}: "{{source}}@{{skillsetVersion}}"`
-- Do NOT add individual skill, agent, or file names to the config
-- The `skills` map is reserved for standalone skill installations
 
 {{setupSection}}
 
