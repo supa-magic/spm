@@ -4,33 +4,45 @@ import { parseIdentifier } from '@/core/resolver'
 describe('parseIdentifier', () => {
   it('parses @owner/repo/path correctly', () => {
     expect(parseIdentifier('@supa-magic/skillbox/claude/fsd')).toEqual({
-      owner: 'supa-magic',
-      repository: 'skillbox',
-      path: 'claude/fsd',
+      kind: 'skillset',
+      identifier: {
+        owner: 'supa-magic',
+        repository: 'skillbox',
+        path: 'claude/fsd',
+      },
     })
   })
 
   it('parses identifier with single path segment', () => {
     expect(parseIdentifier('@supa-magic/skillbox/git')).toEqual({
-      owner: 'supa-magic',
-      repository: 'skillbox',
-      path: 'git',
+      kind: 'skillset',
+      identifier: {
+        owner: 'supa-magic',
+        repository: 'skillbox',
+        path: 'git',
+      },
     })
   })
 
   it('parses identifier with deep path', () => {
     expect(parseIdentifier('@org/repo/a/b/c')).toEqual({
-      owner: 'org',
-      repository: 'repo',
-      path: 'a/b/c',
+      kind: 'skillset',
+      identifier: {
+        owner: 'org',
+        repository: 'repo',
+        path: 'a/b/c',
+      },
     })
   })
 
   it('trims whitespace', () => {
     expect(parseIdentifier('  @supa-magic/skillbox/claude/fsd  ')).toEqual({
-      owner: 'supa-magic',
-      repository: 'skillbox',
-      path: 'claude/fsd',
+      kind: 'skillset',
+      identifier: {
+        owner: 'supa-magic',
+        repository: 'skillbox',
+        path: 'claude/fsd',
+      },
     })
   })
 
@@ -40,9 +52,13 @@ describe('parseIdentifier', () => {
         'https://github.com/supa-magic/skillbox/tree/main/claude/skill-creator',
       ),
     ).toEqual({
-      owner: 'supa-magic',
-      repository: 'skillbox',
-      path: 'claude/skill-creator',
+      kind: 'skillset',
+      identifier: {
+        owner: 'supa-magic',
+        repository: 'skillbox',
+        path: 'claude/skill-creator',
+        ref: 'main',
+      },
     })
   })
 
@@ -50,16 +66,68 @@ describe('parseIdentifier', () => {
     expect(
       parseIdentifier('https://github.com/org/repo/tree/develop/path/to/skill'),
     ).toEqual({
-      owner: 'org',
-      repository: 'repo',
-      path: 'path/to/skill',
+      kind: 'skillset',
+      identifier: {
+        owner: 'org',
+        repository: 'repo',
+        path: 'path/to/skill',
+        ref: 'develop',
+      },
     })
   })
 
-  it('rejects invalid GitHub URL without tree segment', () => {
-    expect(() =>
-      parseIdentifier('https://github.com/owner/repo/blob/main/file.md'),
-    ).toThrow('Invalid GitHub URL')
+  it('parses GitHub blob URL as skill', () => {
+    expect(
+      parseIdentifier(
+        'https://github.com/owner/repo/blob/main/skills/SKILL.md',
+      ),
+    ).toEqual({
+      kind: 'skill',
+      identifier: {
+        owner: 'owner',
+        repository: 'repo',
+        path: 'skills/SKILL.md',
+        ref: 'main',
+      },
+    })
+  })
+
+  it('parses raw.githubusercontent.com URL', () => {
+    expect(
+      parseIdentifier(
+        'https://raw.githubusercontent.com/owner/repo/main/skills/SKILL.md',
+      ),
+    ).toEqual({
+      kind: 'skill',
+      identifier: {
+        owner: 'owner',
+        repository: 'repo',
+        path: 'skills/SKILL.md',
+        ref: 'main',
+      },
+    })
+  })
+
+  it('detects .md path as skill kind', () => {
+    expect(parseIdentifier('@org/repo/skills/git/SKILL.md')).toEqual({
+      kind: 'skill',
+      identifier: {
+        owner: 'org',
+        repository: 'repo',
+        path: 'skills/git/SKILL.md',
+      },
+    })
+  })
+
+  it('detects .MD path as skill kind (case insensitive)', () => {
+    expect(parseIdentifier('@org/repo/skills/git/SKILL.MD')).toEqual({
+      kind: 'skill',
+      identifier: {
+        owner: 'org',
+        repository: 'repo',
+        path: 'skills/git/SKILL.MD',
+      },
+    })
   })
 
   it('rejects identifiers without @ prefix', () => {
@@ -92,9 +160,12 @@ describe('parseIdentifier', () => {
 
   it('normalizes double slashes', () => {
     expect(parseIdentifier('@owner//repo/path')).toEqual({
-      owner: 'owner',
-      repository: 'repo',
-      path: 'path',
+      kind: 'skillset',
+      identifier: {
+        owner: 'owner',
+        repository: 'repo',
+        path: 'path',
+      },
     })
   })
 })

@@ -45,8 +45,8 @@ describe('spm cli', () => {
     expect(stdout.trim()).toBe('Not implemented yet')
   })
 
-  it('runs install and starts resolving', async () => {
+  it('runs install and rejects invalid identifier', async () => {
     const { stdout } = await run('install', 'test-skillset')
-    expect(stdout).toContain('Resolving endpoint')
+    expect(stdout).toContain('Must start with @')
   })
 })
