@@ -1,7 +1,7 @@
 import type { Command } from 'commander'
 import type { ProjectConfig } from '@/core/config'
 import { readdir, rm } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, resolve, sep } from 'node:path'
 import { getProjectRoot, readConfig, removeConfigEntry } from '@/core/config'
 import { cyan, dim, green, reset } from '@/utils/ansi'
 import { createStepper } from '@/utils/stepper'
@@ -39,20 +39,20 @@ const registerUninstallCommand = (program: Command) => {
         }
 
         const projectRoot = getProjectRoot()
-        const skillDir = join(
-          projectRoot,
-          match.providerPath,
-          'skills',
-          skillName,
-        )
+        const skillsParentDir = join(projectRoot, match.providerPath, 'skills')
+        const skillDir = join(skillsParentDir, skillName)
+        const resolved = resolve(skillDir)
+
+        if (!resolved.startsWith(`${resolve(skillsParentDir)}${sep}`)) {
+          throw new Error(`Invalid skill name: "${skillName}"`)
+        }
 
         await rm(skillDir, { recursive: true, force: true })
 
-        const skillsParent = join(projectRoot, match.providerPath, 'skills')
-        const remaining = await readdir(skillsParent).catch(() => [])
+        const remaining = await readdir(skillsParentDir).catch(() => [])
 
         if (remaining.length === 0) {
-          await rm(skillsParent, { recursive: true, force: true })
+          await rm(skillsParentDir, { recursive: true, force: true })
         }
 
         removeConfigEntry({

@@ -22,7 +22,7 @@ const createStepTracker = (
   let currentStepHeader = 'Analyzing existing setup...'
   let stepItems: string[] = []
   let stepFileCount = 0
-  const state = { doneReceived: false, setupReached: false }
+  const state = { setupReached: false }
   const writtenFiles: string[] = []
 
   const succeedCurrentStep = () => {
@@ -64,7 +64,6 @@ const createStepTracker = (
     if (trimmed === 'Done') {
       succeedCurrentStep()
       currentStepHeader = ''
-      state.doneReceived = true
       return
     }
 

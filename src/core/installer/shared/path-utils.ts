@@ -1,9 +1,13 @@
-import { normalize, resolve } from 'node:path'
+import { normalize, resolve, sep } from 'node:path'
 
 const safePath = (baseDir: string, filePath: string): string => {
-  const resolved = resolve(baseDir, normalize(filePath))
+  const resolvedBase = resolve(baseDir)
+  const resolved = resolve(resolvedBase, normalize(filePath))
 
-  if (!resolved.startsWith(baseDir)) {
+  if (
+    resolved !== resolvedBase &&
+    !resolved.startsWith(`${resolvedBase}${sep}`)
+  ) {
     throw new Error(`Path traversal detected: "${filePath}"`)
   }
 

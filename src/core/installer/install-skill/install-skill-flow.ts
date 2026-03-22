@@ -1,5 +1,5 @@
 import type { Stepper } from '@/utils/stepper'
-import { join, posix } from 'node:path'
+import { join, posix, resolve, sep } from 'node:path'
 import {
   addConfigEntry,
   getConfigPath,
@@ -59,7 +59,12 @@ const installSkillFlow = async (
   stepper.succeed(`Downloaded ${resolved.files.length} file(s)`)
 
   const providerFullPath = join(projectRoot, providerPath)
-  const skillProviderDir = join(providerFullPath, 'skills', resolved.name)
+  const skillsBase = resolve(providerFullPath, 'skills')
+  const skillProviderDir = join(skillsBase, resolved.name)
+
+  if (!resolve(skillProviderDir).startsWith(`${skillsBase}${sep}`)) {
+    throw new Error(`Invalid skill name: "${resolved.name}"`)
+  }
   const pruned = pruneUnchanged(downloadDir, skillProviderDir)
 
   if (pruned > 0) {
