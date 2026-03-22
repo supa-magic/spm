@@ -68,11 +68,43 @@ const addConfigEntry = ({
   writeConfig(config)
 }
 
+type RemoveEntryParams = {
+  providerPath: string
+  kind: 'skills' | 'skillsets'
+  name: string
+}
+
+const removeConfigEntry = ({
+  providerPath,
+  kind,
+  name,
+}: RemoveEntryParams): void => {
+  const { config } = readConfig()
+  const provider = Object.values(config.providers).find(
+    (p) => p.path === providerPath,
+  )
+
+  if (!provider) {
+    throw new Error(`Provider with path "${providerPath}" not found in config`)
+  }
+
+  if (!provider[kind]?.[name]) return
+
+  delete provider[kind][name]
+
+  if (Object.keys(provider[kind] ?? {}).length === 0) {
+    delete provider[kind]
+  }
+
+  writeConfig(config)
+}
+
 export {
-  CONFIG_FILE,
   addConfigEntry,
+  CONFIG_FILE,
   createDefaultConfig,
   getConfigPath,
   readConfig,
+  removeConfigEntry,
   writeConfig,
 }

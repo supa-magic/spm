@@ -7,5 +7,6 @@ export {
   createDefaultConfig,
   getConfigPath,
   readConfig,
+  removeConfigEntry,
   writeConfig,
 } from './spmrc'
