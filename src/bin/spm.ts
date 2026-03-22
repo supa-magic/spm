@@ -5,6 +5,7 @@ import {
   registerInitCommand,
   registerInstallCommand,
   registerListCommand,
+  registerUninstallCommand,
 } from '@/commands'
 import { banner } from '@/utils/banner'
 
@@ -30,6 +31,7 @@ program
 
 registerInitCommand(program)
 registerInstallCommand(program)
+registerUninstallCommand(program)
 registerListCommand(program)
 registerDoctorCommand(program)
 
