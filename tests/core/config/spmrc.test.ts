@@ -16,12 +16,18 @@ vi.mock('node:child_process', () => ({
   }),
 }))
 
+const mockState = { projectRoot: '' }
+vi.mock('@/core/config/project-root', () => ({
+  getProjectRoot: () => mockState.projectRoot,
+}))
+
 import { parse, stringify } from 'yaml'
 import {
   CONFIG_FILE,
   createDefaultConfig,
   getConfigPath,
   readConfig,
+  removeConfigEntry,
   writeConfig,
 } from '@/core/config'
 
@@ -32,6 +38,7 @@ describe('config', () => {
 
   beforeEach(() => {
     tmpDir = createTmpDir()
+    mockState.projectRoot = tmpDir
   })
 
   afterEach(() => {
@@ -137,6 +144,130 @@ describe('config', () => {
       const { config } = readConfig(tmpDir)
       expect(config.providers.cursor).toBeDefined()
       expect(config.providers.claude).toBeUndefined()
+    })
+  })
+
+  describe('removeConfigEntry', () => {
+    it('removes a skill entry from config', () => {
+      const config = {
+        version: 1,
+        providers: {
+          claude: {
+            path: '.claude',
+            skills: {
+              git: 'skillbox/git@1.0.0',
+              react: 'skillbox/react@1.0.0',
+            },
+          },
+        },
+      }
+      writeFileSync(join(tmpDir, CONFIG_FILE), stringify(config), 'utf-8')
+
+      removeConfigEntry({
+        providerPath: '.claude',
+        kind: 'skills',
+        name: 'git',
+      })
+
+      const { config: updated } = readConfig(tmpDir)
+      expect(updated.providers.claude.skills).toEqual({
+        react: 'skillbox/react@1.0.0',
+      })
+    })
+
+    it('removes skills map when last entry is removed', () => {
+      const config = {
+        version: 1,
+        providers: {
+          claude: {
+            path: '.claude',
+            skills: {
+              git: 'skillbox/git@1.0.0',
+            },
+          },
+        },
+      }
+      writeFileSync(join(tmpDir, CONFIG_FILE), stringify(config), 'utf-8')
+
+      removeConfigEntry({
+        providerPath: '.claude',
+        kind: 'skills',
+        name: 'git',
+      })
+
+      const { config: updated } = readConfig(tmpDir)
+      expect(updated.providers.claude.skills).toBeUndefined()
+    })
+
+    it('does nothing when skill does not exist', () => {
+      const config = {
+        version: 1,
+        providers: {
+          claude: {
+            path: '.claude',
+            skills: {
+              git: 'skillbox/git@1.0.0',
+            },
+          },
+        },
+      }
+      writeFileSync(join(tmpDir, CONFIG_FILE), stringify(config), 'utf-8')
+
+      removeConfigEntry({
+        providerPath: '.claude',
+        kind: 'skills',
+        name: 'nonexistent',
+      })
+
+      const { config: updated } = readConfig(tmpDir)
+      expect(updated.providers.claude.skills).toEqual({
+        git: 'skillbox/git@1.0.0',
+      })
+    })
+
+    it('throws when provider path not found', () => {
+      const config = {
+        version: 1,
+        providers: {
+          claude: { path: '.claude' },
+        },
+      }
+      writeFileSync(join(tmpDir, CONFIG_FILE), stringify(config), 'utf-8')
+
+      expect(() =>
+        removeConfigEntry({
+          providerPath: '.unknown',
+          kind: 'skills',
+          name: 'git',
+        }),
+      ).toThrow('Provider with path ".unknown" not found in config')
+    })
+
+    it('removes a skillset entry from config', () => {
+      const config = {
+        version: 1,
+        providers: {
+          claude: {
+            path: '.claude',
+            skillsets: {
+              'nextjs-fsd': '@supa-magic/nextjs-fsd@1.0.0',
+              'loop-dev': 'skillbox/loop-dev@2.0.0',
+            },
+          },
+        },
+      }
+      writeFileSync(join(tmpDir, CONFIG_FILE), stringify(config), 'utf-8')
+
+      removeConfigEntry({
+        providerPath: '.claude',
+        kind: 'skillsets',
+        name: 'nextjs-fsd',
+      })
+
+      const { config: updated } = readConfig(tmpDir)
+      expect(updated.providers.claude.skillsets).toEqual({
+        'loop-dev': 'skillbox/loop-dev@2.0.0',
+      })
     })
   })
 })

@@ -31,6 +31,7 @@ describe('spm cli', () => {
   it('registers all commands', async () => {
     const { stdout } = await run('--help')
     expect(stdout).toContain('install')
+    expect(stdout).toContain('uninstall')
     expect(stdout).toContain('list')
     expect(stdout).toContain('doctor')
   })
