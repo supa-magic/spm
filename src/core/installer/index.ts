@@ -1,11 +1,12 @@
 export type { InstallInput, InstallResult, SkillInstallInput } from './types'
+export { installSingleSkill, installSkillFlow } from './install-skill'
+export { installSkillset, installSkillsetFlow } from './install-skillset'
+export { pruneUnchanged } from './prune-unchanged'
 export {
   buildInstructions,
+  buildSetupSection,
   buildSkillInstructions,
   writeInstructionsFile,
   writeSkillInstructionsFile,
-} from './build-prompt'
-export { installSingleSkill } from './install-single-skill'
-export { installSkillset } from './install-skill'
-export { pruneUnchanged } from './prune-unchanged'
+} from './shared'
 export { spawnClaude } from './spawn-claude'

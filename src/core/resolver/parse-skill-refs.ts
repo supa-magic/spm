@@ -23,11 +23,15 @@ const isExcluded = (ref: string): boolean => {
   )
 }
 
+const stripCodeBlocks = (text: string): string =>
+  text.replace(/^(`{3,})[^\n]*\n[\s\S]*?\n\1\s*$/gm, '')
+
 const parseSkillRefs = (content: string, fileDir: string): string[] => {
   const refs = new Set<string>()
+  const stripped = stripCodeBlocks(content)
 
   const collect = (pattern: RegExp) => {
-    for (const match of content.matchAll(pattern)) {
+    for (const match of stripped.matchAll(pattern)) {
       const ref = match[1]
       if (!isExcluded(ref)) {
         const resolved = posix.normalize(posix.join(fileDir, ref))

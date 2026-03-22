@@ -2,11 +2,11 @@ import type { InstallInput } from '@/core/installer'
 import type { Stepper } from '@/utils/stepper'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/core/installer/spawn-claude', () => ({
+vi.mock('@/core/installer/spawn-claude/spawn-claude', () => ({
   spawnClaude: vi.fn(),
 }))
 
-vi.mock('@/core/installer/build-prompt', () => ({
+vi.mock('@/core/installer/shared/build-prompt', () => ({
   writeInstructionsFile: vi.fn(() => '/tmp/spm/install-dev-tools.md'),
 }))
 
