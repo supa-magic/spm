@@ -1,8 +1,18 @@
 import type { Stepper } from '@/utils/stepper'
 import type { InstallResult } from '../types'
 import { spawn } from 'node:child_process'
+import { appendFileSync, mkdirSync } from 'node:fs'
+import { dirname } from 'node:path'
 import { createStreamParser } from './parse-stream'
 import { createStepTracker } from './step-tracker'
+
+const debug = (() => {
+  const logPath = process.env.SPM_DEBUG
+  if (!logPath) return undefined
+  mkdirSync(dirname(logPath), { recursive: true })
+  return (label: string, data: string) =>
+    appendFileSync(logPath, `[${label}] ${data}\n`, 'utf-8')
+})()
 
 const spawnClaude = (
   instructionsFilePath: string,
@@ -20,10 +30,18 @@ const spawnClaude = (
       '--verbose',
       '--output-format',
       'stream-json',
+      '--permission-mode',
+      'acceptEdits',
       '--allowedTools',
       'Read,Write,Edit,Bash,Glob,Grep',
       ...(model ? ['--model', model] : []),
     ]
+
+    debug?.('spawn', `claude ${args.join(' ')}`)
+    debug?.(
+      'config',
+      `providerDir=${providerDir} instructions=${instructionsFilePath}`,
+    )
 
     const isWindows = process.platform === 'win32'
 
@@ -35,6 +53,7 @@ const spawnClaude = (
     const tracker = createStepTracker(stepper, providerDir, entityLabel)
 
     const stream = createStreamParser((event) => {
+      debug?.('event', JSON.stringify(event))
       if (event.type !== 'assistant') return
       const blocks = event.message?.content
       if (!blocks) return
@@ -43,14 +62,20 @@ const spawnClaude = (
 
     stepper.start('Analyzing existing setup...', 'skills')
 
-    child.stdout.on('data', stream.onChunk)
+    child.stdout.on('data', (chunk: Buffer) => {
+      debug?.('stdout', chunk.toString())
+      stream.onChunk(chunk)
+    })
 
     let stderrBuffer = ''
     child.stderr.on('data', (chunk: Buffer) => {
-      stderrBuffer += chunk.toString()
+      const text = chunk.toString()
+      debug?.('stderr', text)
+      stderrBuffer += text
     })
 
     child.on('error', (err) => {
+      debug?.('error', err.message)
       if ('code' in err && err.code === 'ENOENT') {
         reject(
           new Error(
@@ -66,6 +91,10 @@ const spawnClaude = (
       tracker.finalize()
 
       const stderr = stderrBuffer.trim()
+      const writtenFiles = tracker.getWrittenFiles()
+      debug?.('close', `code=${code} stderr=${stderr}`)
+      debug?.('files', JSON.stringify(writtenFiles))
+      debug?.('result', stream.getResultText())
 
       if (code !== 0 && code !== null) {
         const detail = stderr ? `\n${stderr}` : ''
@@ -84,7 +113,7 @@ const spawnClaude = (
       resolve({
         success: true,
         output: stream.getResultText(),
-        files: tracker.getWrittenFiles(),
+        files: writtenFiles,
       })
     })
   })

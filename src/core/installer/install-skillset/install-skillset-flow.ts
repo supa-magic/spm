@@ -101,9 +101,6 @@ const installSkillsetFlow = async (
 
   stepper.succeed(`Downloaded ${results.length} file(s)`)
 
-  const downloadedPaths = installResults.map((r) =>
-    toTargetPath(r, skillsetDir),
-  )
   const providerFullPath = join(projectRoot, providerPath)
   const pruned = pruneUnchanged(downloadDir, providerFullPath)
 
@@ -142,8 +139,7 @@ const installSkillsetFlow = async (
   stepper.stop()
   printCompleted(startedAt)
 
-  const summaryFiles = result.files.length > 0 ? result.files : downloadedPaths
-  printSummary(summaryFiles, providerPath)
+  printSummary(result.files, providerPath)
 
   process.stdout.write(
     `\n🪄  ${cyan}Restart your AI agent to apply the new skills.${reset}\n`,

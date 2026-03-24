@@ -101,14 +101,7 @@ const installSkillFlow = async (
   stepper.stop()
   printCompleted(startedAt)
 
-  const downloadedPaths = resolved.files.map((f) => {
-    const skillDirPrefix = `${skillDir}/`
-    return f.path.startsWith(skillDirPrefix)
-      ? `skills/${resolved.name}/${f.path.slice(skillDirPrefix.length)}`
-      : `skills/${resolved.name}/${f.path.split('/').pop() ?? f.path}`
-  })
-  const summaryFiles = result.files.length > 0 ? result.files : downloadedPaths
-  printSummary(summaryFiles, providerPath)
+  printSummary(result.files, providerPath)
 
   process.stdout.write(
     `\n🪄  ${cyan}Restart your AI agent to apply the new skills.${reset}\n`,

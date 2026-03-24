@@ -105,6 +105,8 @@ describe('spawnClaude', () => {
         '--verbose',
         '--output-format',
         'stream-json',
+        '--permission-mode',
+        'acceptEdits',
         '--allowedTools',
         'Read,Write,Edit,Bash,Glob,Grep',
       ],
