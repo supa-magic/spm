@@ -108,7 +108,7 @@ const installSkillsetFlow = async (
     stepper.succeed(`Skipped ${pruned} unchanged file(s)`)
   }
 
-  const model = skillset.provider === 'claude' ? 'haiku' : undefined
+  const model = skillset.provider === 'claude' ? 'sonnet' : undefined
   const source = `https://github.com/${location.owner}/${location.repository}/blob/${location.ref}/${location.path}`
 
   const result = await spawnClaude(
