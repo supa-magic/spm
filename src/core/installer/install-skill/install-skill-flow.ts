@@ -58,6 +58,13 @@ const installSkillFlow = async (
 
   stepper.succeed(`Downloaded ${resolved.files.length} file(s)`)
 
+  if (resolved.unresolvedRefs.length > 0) {
+    stepper.succeed(
+      `Skipped ${resolved.unresolvedRefs.length} unresolved reference(s)`,
+      resolved.unresolvedRefs.map((r) => r.split('/').pop()).join(', '),
+    )
+  }
+
   const providerFullPath = join(projectRoot, providerPath)
   const skillsBase = resolve(providerFullPath, 'skills')
   const skillProviderDir = join(skillsBase, resolved.name)
@@ -71,7 +78,7 @@ const installSkillFlow = async (
     stepper.succeed(`Skipped ${pruned} unchanged file(s)`)
   }
 
-  const model = providerName === 'claude' ? 'haiku' : undefined
+  const model = providerName === 'claude' ? 'sonnet' : undefined
   const source = `https://github.com/${resolved.location.owner}/${resolved.location.repository}/blob/${resolved.location.ref}/${resolved.location.path}`
 
   const result = await spawnClaude(
@@ -82,6 +89,7 @@ const installSkillFlow = async (
       source,
       configPath: getConfigPath(),
       model,
+      unresolvedRefs: resolved.unresolvedRefs,
     }),
     stepper,
     providerFullPath,
