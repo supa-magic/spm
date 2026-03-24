@@ -19,6 +19,7 @@ const isExcluded = (ref: string): boolean => {
     ref.startsWith('https://') ||
     ref.startsWith('/') ||
     ref.includes('..') ||
+    /\{[^}]+\}/.test(ref) ||
     providerPrefixes.some((prefix) => normalized.startsWith(prefix))
   )
 }

@@ -22,6 +22,7 @@ type SkillInstallInput = {
   source: string
   configPath: string
   model?: string
+  unresolvedRefs?: string[]
 }
 
 export type { InstallInput, InstallResult, SkillInstallInput }

@@ -79,6 +79,8 @@ Install files into `{{providerDir}}/skills/{{skillName}}/`, following the direct
 - If existing skills handle branching or committing → reference them instead of duplicating instructions
 - If the project has naming conventions, testing patterns, or architectural rules → align new skills with them
 
+{{unresolvedSection}}
+
 ## Rules
 
 - Do not delete or modify existing files in the provider directory unless resolving a conflict
