@@ -1,4 +1,5 @@
 import type { Stepper } from '@/utils/stepper'
+import type { InstallResult } from '../types'
 import { join } from 'node:path'
 import {
   addConfigEntry,
@@ -17,6 +18,8 @@ import { pruneUnchanged } from '../prune-unchanged'
 import {
   cleanupDownloadDir,
   collectRemainingFiles,
+  copyFilesToProvider,
+  detectConflicts,
   downloadEntries,
   listExistingFiles,
   printCompleted,
@@ -104,29 +107,45 @@ const installSkillsetFlow = async (
     stepper.succeed(`Skipped ${pruned} unchanged file(s)`)
   }
 
-  const model = skillset.provider === 'claude' ? 'sonnet' : undefined
   const source = `https://github.com/${location.owner}/${location.repository}/blob/${location.ref}/${location.path}`
 
-  const embedded = {
-    downloadedFiles: collectRemainingFiles(downloadDir),
-    existingFiles: listExistingFiles(providerFullPath),
-  }
-
-  const result = await spawnClaude(
-    writeInstructionsFile({
-      setupContent,
-      providerDir: providerFullPath,
-      skillsetName: skillset.name,
-      skillsetVersion: skillset.version,
-      source,
-      configPath: getConfigPath(),
-      model,
-      embedded,
-    }),
-    stepper,
+  const remainingFiles = collectRemainingFiles(downloadDir)
+  const { newFiles, conflictFiles } = detectConflicts(
+    remainingFiles,
     providerFullPath,
-    model,
   )
+
+  let result: InstallResult
+
+  if (conflictFiles.length === 0 && !setupContent) {
+    result = copyFilesToProvider(
+      newFiles,
+      providerFullPath,
+      stepper,
+      'Skillset',
+    )
+  } else {
+    const model = skillset.provider === 'claude' ? 'sonnet' : undefined
+    const embedded = {
+      downloadedFiles: remainingFiles,
+      existingFiles: listExistingFiles(providerFullPath),
+    }
+    result = await spawnClaude(
+      writeInstructionsFile({
+        setupContent,
+        providerDir: providerFullPath,
+        skillsetName: skillset.name,
+        skillsetVersion: skillset.version,
+        source,
+        configPath: getConfigPath(),
+        model,
+        embedded,
+      }),
+      stepper,
+      providerFullPath,
+      model,
+    )
+  }
 
   addConfigEntry({
     providerPath,
