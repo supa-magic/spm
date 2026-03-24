@@ -1,4 +1,5 @@
 import type { Stepper } from '@/utils/stepper'
+import type { InstallResult } from '../types'
 import { join, posix, resolve, sep } from 'node:path'
 import {
   addConfigEntry,
@@ -12,6 +13,8 @@ import { pruneUnchanged } from '../prune-unchanged'
 import {
   cleanupDownloadDir,
   collectRemainingFiles,
+  copyFilesToProvider,
+  detectConflicts,
   listExistingFiles,
   printCompleted,
   printSummary,
@@ -80,29 +83,40 @@ const installSkillFlow = async (
     stepper.succeed(`Skipped ${pruned} unchanged file(s)`)
   }
 
-  const model = providerName === 'claude' ? 'sonnet' : undefined
   const source = `https://github.com/${resolved.location.owner}/${resolved.location.repository}/blob/${resolved.location.ref}/${resolved.location.path}`
 
-  const embedded = {
-    downloadedFiles: collectRemainingFiles(downloadDir),
-    existingFiles: listExistingFiles(providerFullPath),
-  }
-
-  const result = await spawnClaude(
-    writeSkillInstructionsFile({
-      providerDir: providerFullPath,
-      skillName: resolved.name,
-      source,
-      configPath: getConfigPath(),
-      model,
-      unresolvedRefs: resolved.unresolvedRefs,
-      embedded,
-    }),
-    stepper,
-    providerFullPath,
-    model,
-    'Skill',
+  const remainingFiles = collectRemainingFiles(downloadDir)
+  const { newFiles, conflictFiles } = detectConflicts(
+    remainingFiles,
+    skillProviderDir,
   )
+
+  let result: InstallResult
+
+  if (conflictFiles.length === 0) {
+    result = copyFilesToProvider(newFiles, skillProviderDir, stepper, 'Skill')
+  } else {
+    const model = providerName === 'claude' ? 'sonnet' : undefined
+    const embedded = {
+      downloadedFiles: remainingFiles,
+      existingFiles: listExistingFiles(providerFullPath),
+    }
+    result = await spawnClaude(
+      writeSkillInstructionsFile({
+        providerDir: providerFullPath,
+        skillName: resolved.name,
+        source,
+        configPath: getConfigPath(),
+        model,
+        unresolvedRefs: resolved.unresolvedRefs,
+        embedded,
+      }),
+      stepper,
+      providerFullPath,
+      model,
+      'Skill',
+    )
+  }
 
   addConfigEntry({
     providerPath,
