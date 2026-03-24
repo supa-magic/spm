@@ -24,8 +24,8 @@ type DownloadedFile = {
 }
 
 export type {
-  DownloadSource,
   DownloadedFile,
+  DownloadSource,
   GitHubSource,
   LocalSource,
   UrlSource,
