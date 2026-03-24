@@ -1,5 +1,4 @@
 import type { Stepper } from '@/utils/stepper'
-import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import {
   addConfigEntry,
@@ -17,7 +16,9 @@ import { cyan, reset } from '@/utils/ansi'
 import { pruneUnchanged } from '../prune-unchanged'
 import {
   cleanupDownloadDir,
+  collectRemainingFiles,
   downloadEntries,
+  listExistingFiles,
   printCompleted,
   printSummary,
   writeFilesToTemp,
@@ -91,13 +92,8 @@ const installSkillsetFlow = async (
     })),
   )
 
-  let setupFile: string | undefined
-  if (setupResults.length > 0) {
-    const setup = setupResults[0]
-    setupFile = join(downloadDir, 'SETUP.md')
-    await mkdir(join(downloadDir), { recursive: true })
-    await writeFile(setupFile, setup.content, 'utf-8')
-  }
+  const setupContent =
+    setupResults.length > 0 ? setupResults[0].content : undefined
 
   stepper.succeed(`Downloaded ${results.length} file(s)`)
 
@@ -111,16 +107,21 @@ const installSkillsetFlow = async (
   const model = skillset.provider === 'claude' ? 'sonnet' : undefined
   const source = `https://github.com/${location.owner}/${location.repository}/blob/${location.ref}/${location.path}`
 
+  const embedded = {
+    downloadedFiles: collectRemainingFiles(downloadDir),
+    existingFiles: listExistingFiles(providerFullPath),
+  }
+
   const result = await spawnClaude(
     writeInstructionsFile({
-      downloadDir,
-      setupFile,
+      setupContent,
       providerDir: providerFullPath,
       skillsetName: skillset.name,
       skillsetVersion: skillset.version,
       source,
       configPath: getConfigPath(),
       model,
+      embedded,
     }),
     stepper,
     providerFullPath,

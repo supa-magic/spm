@@ -1,12 +1,19 @@
+import type { EmbeddedFile } from './shared/collect-files'
+
+type EmbeddedContext = {
+  downloadedFiles: EmbeddedFile[]
+  existingFiles: string[]
+}
+
 type InstallInput = {
-  downloadDir: string
-  setupFile?: string
+  setupContent?: string
   providerDir: string
   skillsetName: string
   skillsetVersion: string
   source: string
   configPath: string
   model?: string
+  embedded: EmbeddedContext
 }
 
 type InstallResult = {
@@ -16,13 +23,13 @@ type InstallResult = {
 }
 
 type SkillInstallInput = {
-  downloadDir: string
   providerDir: string
   skillName: string
   source: string
   configPath: string
   model?: string
   unresolvedRefs?: string[]
+  embedded: EmbeddedContext
 }
 
-export type { InstallInput, InstallResult, SkillInstallInput }
+export type { EmbeddedContext, InstallInput, InstallResult, SkillInstallInput }

@@ -3,18 +3,22 @@ import { describe, expect, it } from 'vitest'
 import { buildInstructions } from '@/core/installer'
 
 const defaultInput: InstallInput = {
-  downloadDir: '/tmp/spm/dev-tools',
   providerDir: '.claude',
   skillsetName: 'dev-tools',
   skillsetVersion: '1.0.0',
   source: '@supa-magic/skillbox',
   configPath: '.spmrc.yml',
+  embedded: {
+    downloadedFiles: [{ path: 'skills/git/SKILL.md', content: '# Git skill' }],
+    existingFiles: [],
+  },
 }
 
 describe('buildInstructions', () => {
-  it('includes download directory', () => {
+  it('embeds downloaded file contents', () => {
     const instructions = buildInstructions(defaultInput)
-    expect(instructions).toContain('/tmp/spm/dev-tools')
+    expect(instructions).toContain('skills/git/SKILL.md')
+    expect(instructions).toContain('# Git skill')
   })
 
   it('includes provider directory', () => {
