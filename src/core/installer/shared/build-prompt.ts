@@ -97,11 +97,46 @@ const writeSkillInstructionsFile = (input: SkillInstallInput): string => {
   return filePath
 }
 
+const writeSetupInstructionsFile = (
+  setupContent: string,
+  skillsetName: string,
+): string => {
+  const instructions = [
+    '# Skillset Setup',
+    '',
+    `You are running setup for the **${skillsetName}** skillset.`,
+    'Follow the instructions below to configure the project environment.',
+    '',
+    '## Output Format',
+    '',
+    'CRITICAL — follow exactly:',
+    '- NEVER wrap output in code blocks or backticks',
+    '- NEVER write conversational text',
+    '- NEVER use emojis',
+    '- Output ONLY structured log lines',
+    '- End with `Done` on its own line',
+    '',
+    'Step header: `Running setup...`',
+    '',
+    '## Instructions',
+    '',
+    setupContent,
+    '',
+    'Done',
+  ].join('\n')
+
+  const filePath = join(tmpdir(), 'spm', `setup-${skillsetName}.md`)
+  mkdirSync(dirname(filePath), { recursive: true })
+  writeFileSync(filePath, instructions, 'utf-8')
+  return filePath
+}
+
 export {
   buildEmbeddedSection,
   buildInstructions,
   buildSetupSection,
   buildSkillInstructions,
   writeInstructionsFile,
+  writeSetupInstructionsFile,
   writeSkillInstructionsFile,
 }

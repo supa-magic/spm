@@ -5,6 +5,7 @@ export {
   buildSetupSection,
   buildSkillInstructions,
   writeInstructionsFile,
+  writeSetupInstructionsFile,
   writeSkillInstructionsFile,
 } from './build-prompt'
 export { cleanupDownloadDir } from './cleanup'
