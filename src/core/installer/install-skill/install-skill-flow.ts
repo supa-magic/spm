@@ -94,7 +94,13 @@ const installSkillFlow = async (
   let result: InstallResult
 
   if (conflictFiles.length === 0) {
-    result = copyFilesToProvider(newFiles, skillProviderDir, stepper, 'Skill')
+    result = copyFilesToProvider(
+      newFiles,
+      skillProviderDir,
+      providerFullPath,
+      stepper,
+      'Skill',
+    )
   } else {
     const model = providerName === 'claude' ? 'sonnet' : undefined
     const embedded = {

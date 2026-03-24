@@ -122,6 +122,7 @@ const installSkillsetFlow = async (
     result = copyFilesToProvider(
       newFiles,
       providerFullPath,
+      providerFullPath,
       stepper,
       'Skillset',
     )

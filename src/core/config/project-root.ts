@@ -4,6 +4,7 @@ const getGitRoot = (): string | undefined => {
   try {
     return execSync('git rev-parse --show-toplevel', {
       encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
     }).trim()
   } catch {
     return undefined

@@ -2,12 +2,13 @@ import type { Stepper } from '@/utils/stepper'
 import type { InstallResult } from '../types'
 import type { EmbeddedFile } from './collect-files'
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { dirname } from 'node:path'
+import { dirname, relative } from 'node:path'
 import { safePath } from './path-utils'
 
 const copyFilesToProvider = (
   files: EmbeddedFile[],
   targetDir: string,
+  providerDir: string,
   stepper: Stepper,
   entityLabel: string,
 ): InstallResult => {
@@ -22,8 +23,9 @@ const copyFilesToProvider = (
     const targetPath = safePath(targetDir, file.path)
     mkdirSync(dirname(targetPath), { recursive: true })
     writeFileSync(targetPath, file.content, 'utf-8')
-    stepper.item(file.path)
-    return file.path
+    const relativePath = relative(providerDir, targetPath).replace(/\\/g, '/')
+    stepper.item(relativePath)
+    return relativePath
   })
 
   stepper.succeed(
