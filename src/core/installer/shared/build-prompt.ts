@@ -1,35 +1,23 @@
-import type { InstallInput, SkillInstallInput } from '../types'
+import type { EmbeddedContext, InstallInput, SkillInstallInput } from '../types'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import skillTemplate from '../install-skill/install-skill.md?raw'
 import template from '../install-skillset/install.md?raw'
 
-const buildSetupSection = (setupFile?: string): string =>
-  setupFile
+const buildSetupSection = (setupContent?: string): string =>
+  setupContent
     ? [
         '## Step 6: Running setup',
         '',
-        `Read the setup file at \`${setupFile}\` and follow its instructions.`,
-        'Setup files configure the project environment (e.g. MCP servers, LSP, tooling).',
-        'Do NOT copy the setup file into the provider directory — only execute its instructions.',
+        'Follow the setup instructions below. Setup files configure the project environment (e.g. MCP servers, LSP, tooling).',
+        'Do NOT copy the setup content into the provider directory — only execute its instructions.',
+        '',
+        '```',
+        setupContent,
+        '```',
       ].join('\n')
     : ''
-
-const buildInstructions = (input: InstallInput): string =>
-  template
-    .replace(/\{\{downloadDir\}\}/g, input.downloadDir)
-    .replace(/\{\{providerDir\}\}/g, input.providerDir)
-    .replace(/\{\{skillsetName\}\}/g, input.skillsetName)
-    .replace(/\{\{skillsetVersion\}\}/g, input.skillsetVersion)
-    .replace('{{setupSection}}', buildSetupSection(input.setupFile))
-
-const writeInstructionsFile = (input: InstallInput): string => {
-  const filePath = join(tmpdir(), 'spm', `install-${input.skillsetName}.md`)
-  mkdirSync(dirname(filePath), { recursive: true })
-  writeFileSync(filePath, buildInstructions(input), 'utf-8')
-  return filePath
-}
 
 const buildUnresolvedSection = (refs?: string[]): string =>
   refs && refs.length > 0
@@ -47,15 +35,60 @@ const buildUnresolvedSection = (refs?: string[]): string =>
       ].join('\n')
     : ''
 
+const buildEmbeddedSection = (embedded: EmbeddedContext): string => {
+  const parts: string[] = []
+
+  parts.push('## Existing files in provider directory')
+  parts.push('')
+  if (embedded.existingFiles.length === 0) {
+    parts.push('Provider directory is empty.')
+  } else {
+    embedded.existingFiles.forEach((f) => parts.push(`- ${f}`))
+  }
+
+  parts.push('')
+  parts.push('## Downloaded files (to be installed)')
+  parts.push('')
+  if (embedded.downloadedFiles.length === 0) {
+    parts.push('No files to install (all unchanged).')
+  } else {
+    embedded.downloadedFiles.forEach((f) => {
+      parts.push(`### ${f.path}`)
+      parts.push('')
+      parts.push('```')
+      parts.push(f.content)
+      parts.push('```')
+      parts.push('')
+    })
+  }
+
+  return parts.join('\n')
+}
+
+const buildInstructions = (input: InstallInput): string =>
+  template
+    .replace(/\{\{providerDir\}\}/g, input.providerDir)
+    .replace(/\{\{skillsetName\}\}/g, input.skillsetName)
+    .replace(/\{\{skillsetVersion\}\}/g, input.skillsetVersion)
+    .replace('{{setupSection}}', buildSetupSection(input.setupContent))
+    .replace('{{embeddedSection}}', buildEmbeddedSection(input.embedded))
+
+const writeInstructionsFile = (input: InstallInput): string => {
+  const filePath = join(tmpdir(), 'spm', `install-${input.skillsetName}.md`)
+  mkdirSync(dirname(filePath), { recursive: true })
+  writeFileSync(filePath, buildInstructions(input), 'utf-8')
+  return filePath
+}
+
 const buildSkillInstructions = (input: SkillInstallInput): string =>
   skillTemplate
-    .replace(/\{\{downloadDir\}\}/g, input.downloadDir)
     .replace(/\{\{providerDir\}\}/g, input.providerDir)
     .replace(/\{\{skillName\}\}/g, input.skillName)
     .replace(
       '{{unresolvedSection}}',
       buildUnresolvedSection(input.unresolvedRefs),
     )
+    .replace('{{embeddedSection}}', buildEmbeddedSection(input.embedded))
 
 const writeSkillInstructionsFile = (input: SkillInstallInput): string => {
   const filePath = join(tmpdir(), 'spm', `install-skill-${input.skillName}.md`)
@@ -65,6 +98,7 @@ const writeSkillInstructionsFile = (input: SkillInstallInput): string => {
 }
 
 export {
+  buildEmbeddedSection,
   buildInstructions,
   buildSetupSection,
   buildSkillInstructions,

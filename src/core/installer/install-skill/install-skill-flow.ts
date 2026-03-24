@@ -11,6 +11,8 @@ import { cyan, dim, reset } from '@/utils/ansi'
 import { pruneUnchanged } from '../prune-unchanged'
 import {
   cleanupDownloadDir,
+  collectRemainingFiles,
+  listExistingFiles,
   printCompleted,
   printSummary,
   writeFilesToTemp,
@@ -81,15 +83,20 @@ const installSkillFlow = async (
   const model = providerName === 'claude' ? 'sonnet' : undefined
   const source = `https://github.com/${resolved.location.owner}/${resolved.location.repository}/blob/${resolved.location.ref}/${resolved.location.path}`
 
+  const embedded = {
+    downloadedFiles: collectRemainingFiles(downloadDir),
+    existingFiles: listExistingFiles(providerFullPath),
+  }
+
   const result = await spawnClaude(
     writeSkillInstructionsFile({
-      downloadDir,
       providerDir: providerFullPath,
       skillName: resolved.name,
       source,
       configPath: getConfigPath(),
       model,
       unresolvedRefs: resolved.unresolvedRefs,
+      embedded,
     }),
     stepper,
     providerFullPath,

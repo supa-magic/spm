@@ -1,4 +1,9 @@
-export type { InstallInput, InstallResult, SkillInstallInput } from './types'
+export type {
+  EmbeddedContext,
+  InstallInput,
+  InstallResult,
+  SkillInstallInput,
+} from './types'
 export { installSingleSkill, installSkillFlow } from './install-skill'
 export { installSkillset, installSkillsetFlow } from './install-skillset'
 export { pruneUnchanged } from './prune-unchanged'

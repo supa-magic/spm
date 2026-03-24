@@ -4,11 +4,10 @@ You are integrating a new skillset into the project. Analyze the existing projec
 
 ## Context
 
-- **Downloaded files**: `{{downloadDir}}`
 - **Provider directory**: `{{providerDir}}`
 - **Skillset**: `{{skillsetName}}` v`{{skillsetVersion}}`
 
-Identical files have already been removed from the download folder. Only files that need action remain. If the download folder is empty, output `Done` immediately.
+Identical files have already been removed. Only files that need action are listed below. If no downloaded files are listed, output `Done` immediately.
 
 ## Output Format
 
@@ -54,17 +53,21 @@ Running setup...
 
 Done
 
+{{embeddedSection}}
+
 ## Step 1: Analyzing existing setup
 
-Read the provider directory (`{{providerDir}}`) and catalog what is already in place: skills, rules, agents, hooks, mcp servers files.
+Review the existing files list above and catalog what is already in place: skills, rules, agents, hooks, mcp servers files.
+Do NOT use Read or Glob to scan the provider directory — all information is provided above.
 
 ## Step 2: Analyzing downloaded files
 
-Read all files in `{{downloadDir}}`. Only files present in this folder need to be installed.
+Review the downloaded files listed above. These are the only files that need to be installed.
+Do NOT use Read or Glob to scan the download directory — all file contents are provided above.
 
 ## Step 3: Detecting conflicts
 
-For each downloaded file, check if a file with the same name exists in the provider directory.
+Using the existing files list and downloaded files above, check if any downloaded file conflicts with an existing file.
 
 - **No existing file** → install as new
 - **Different skillset version** → replace silently (new version supersedes)
@@ -78,7 +81,7 @@ Wait for response before proceeding.
 
 ## Step 4: Integrating
 
-Install files into `{{providerDir}}`, following the directory structure from the download folder.
+Write each downloaded file to `{{providerDir}}` using the Write tool, following the directory structure from the file paths. Use the exact content provided above.
 
 **Integrate, don't copy.** When a new skill can leverage existing project conventions, adapt it:
 
@@ -92,4 +95,5 @@ Install files into `{{providerDir}}`, following the directory structure from the
 
 - Setup files are NOT installed — they contain instructions to configure the project
 - Do not delete or modify existing files in the provider directory unless resolving a conflict
+- Do NOT read files from disk — all content is embedded in this prompt
 - Do NOT delete the download folder — cleanup is handled externally
