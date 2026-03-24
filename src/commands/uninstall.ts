@@ -8,7 +8,8 @@ import { createStepper } from '@/utils/stepper'
 
 const findSkillProvider = (config: ProjectConfig, skillName: string) => {
   const entry = Object.entries(config.providers).find(
-    ([, provider]) => provider.skills?.[skillName],
+    ([, provider]) =>
+      provider.skills != null && Object.hasOwn(provider.skills, skillName),
   )
 
   if (!entry) return undefined

@@ -88,11 +88,12 @@ const removeConfigEntry = ({
     throw new Error(`Provider with path "${providerPath}" not found in config`)
   }
 
-  if (!provider[kind]?.[name]) return
+  const entries = provider[kind]
+  if (!entries || !(name in entries)) return
 
-  delete provider[kind][name]
+  delete entries[name]
 
-  if (Object.keys(provider[kind] ?? {}).length === 0) {
+  if (Object.keys(entries).length === 0) {
     delete provider[kind]
   }
 
