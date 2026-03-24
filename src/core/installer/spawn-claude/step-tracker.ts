@@ -23,7 +23,7 @@ const createStepTracker = (
   let stepItems: string[] = []
   let stepFileCount = 0
   const state = { setupReached: false }
-  const writtenFiles: string[] = []
+  const writtenFiles = new Set<string>()
 
   const succeedCurrentStep = () => {
     if (!currentStepHeader) return
@@ -80,9 +80,6 @@ const createStepTracker = (
       stepper.start(trimmed, stepCategory(trimmed))
     } else {
       stepItems.push(trimmed)
-      if (currentStepHeader.startsWith('Integrating')) {
-        stepper.item(trimmed)
-      }
     }
   }
 
@@ -95,10 +92,12 @@ const createStepTracker = (
     const base = providerDir.replace(/\\/g, '/')
     const isProviderFile = normalized.includes(`${base}/`)
     const relative = toRelativePath(filePath, providerDir)
-    if (isProviderFile) writtenFiles.push(relative)
-    stepFileCount++
-    if (currentStepHeader.startsWith('Integrating')) {
-      stepper.item(relative)
+    if (isProviderFile && !writtenFiles.has(relative)) {
+      writtenFiles.add(relative)
+      stepFileCount++
+      if (currentStepHeader.startsWith('Integrating')) {
+        stepper.item(relative)
+      }
     }
   }
 
@@ -113,7 +112,7 @@ const createStepTracker = (
 
   return {
     processBlock,
-    getWrittenFiles: () => writtenFiles,
+    getWrittenFiles: () => [...writtenFiles],
     finalize: () => {
       if (currentStepHeader) succeedCurrentStep()
     },
