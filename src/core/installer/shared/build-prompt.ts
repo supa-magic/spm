@@ -31,11 +31,31 @@ const writeInstructionsFile = (input: InstallInput): string => {
   return filePath
 }
 
+const buildUnresolvedSection = (refs?: string[]): string =>
+  refs && refs.length > 0
+    ? [
+        '## Unresolved references',
+        '',
+        'The following files are referenced in the skill but do not exist in the source repository.',
+        'They may be runtime-generated paths (e.g. template outputs, reports). Review each reference',
+        'in context and decide:',
+        '',
+        '- **Runtime path** → keep the reference as-is, the file will be created when the skill runs',
+        '- **Missing required file** → warn the user that this file could not be found',
+        '',
+        ...refs.map((r) => `- \`${r}\``),
+      ].join('\n')
+    : ''
+
 const buildSkillInstructions = (input: SkillInstallInput): string =>
   skillTemplate
     .replace(/\{\{downloadDir\}\}/g, input.downloadDir)
     .replace(/\{\{providerDir\}\}/g, input.providerDir)
     .replace(/\{\{skillName\}\}/g, input.skillName)
+    .replace(
+      '{{unresolvedSection}}',
+      buildUnresolvedSection(input.unresolvedRefs),
+    )
 
 const writeSkillInstructionsFile = (input: SkillInstallInput): string => {
   const filePath = join(tmpdir(), 'spm', `install-skill-${input.skillName}.md`)

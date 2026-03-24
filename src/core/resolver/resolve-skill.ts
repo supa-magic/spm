@@ -14,29 +14,40 @@ const resolveSkill = async (
 
   const visited = new Set<string>()
   const files: Array<{ path: string; content: string }> = []
+  const unresolvedRefs: string[] = []
 
-  const fetchRecursive = async (repoPath: string): Promise<void> => {
+  const fetchRecursive = async (
+    repoPath: string,
+    isRoot: boolean,
+  ): Promise<void> => {
     const normalized = posix.normalize(repoPath)
     if (visited.has(normalized)) return
     visited.add(normalized)
 
-    const content = await downloadFromGitHub({
-      kind: 'github',
-      owner: identifier.owner,
-      repository: identifier.repository,
-      path: normalized,
-      ref,
-    })
+    let content: string
+    try {
+      content = await downloadFromGitHub({
+        kind: 'github',
+        owner: identifier.owner,
+        repository: identifier.repository,
+        path: normalized,
+        ref,
+      })
+    } catch (err) {
+      if (isRoot) throw err
+      unresolvedRefs.push(normalized)
+      return
+    }
 
     files.push({ path: normalized, content })
 
     const fileDir = posix.dirname(normalized)
     const refs = parseSkillRefs(content, fileDir)
 
-    await Promise.all(refs.map((refPath) => fetchRecursive(refPath)))
+    await Promise.all(refs.map((refPath) => fetchRecursive(refPath, false)))
   }
 
-  await fetchRecursive(identifier.path)
+  await fetchRecursive(identifier.path, true)
 
   const mainFile = files[0]
   const fileName = posix.basename(identifier.path)
@@ -53,6 +64,7 @@ const resolveSkill = async (
       ref,
     },
     files,
+    unresolvedRefs,
   }
 }
 
