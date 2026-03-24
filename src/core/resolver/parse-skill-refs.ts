@@ -12,6 +12,15 @@ const providerPrefixes = [
   '.cody/',
 ]
 
+const providerSkillPathPattern =
+  /^\.?\/?(?:claude|cursor|copilot|aider|codeium|cody)\/skills\/[^/]+\/(.+)/
+
+const toRelativeSkillPath = (ref: string): string | undefined => {
+  const normalized = ref.replace(/^\.\//, '')
+  const match = providerSkillPathPattern.exec(normalized)
+  return match?.[1]
+}
+
 const isExcluded = (ref: string): boolean => {
   const normalized = ref.replace(/^\.\//, '')
   return (
@@ -33,10 +42,12 @@ const parseSkillRefs = (content: string, fileDir: string): string[] => {
 
   const collect = (pattern: RegExp) => {
     for (const match of stripped.matchAll(pattern)) {
-      const ref = match[1]
-      if (!isExcluded(ref)) {
-        const resolved = posix.normalize(posix.join(fileDir, ref))
-        refs.add(resolved)
+      const raw = match[1]
+      const skillRelative = toRelativeSkillPath(raw)
+      if (skillRelative) {
+        refs.add(posix.normalize(posix.join(fileDir, skillRelative)))
+      } else if (!isExcluded(raw)) {
+        refs.add(posix.normalize(posix.join(fileDir, raw)))
       }
     }
   }
