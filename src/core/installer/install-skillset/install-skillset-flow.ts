@@ -26,6 +26,7 @@ import {
   printSummary,
   writeFilesToTemp,
   writeInstructionsFile,
+  writeSetupInstructionsFile,
 } from '../shared'
 import { spawnClaude } from '../spawn-claude'
 
@@ -117,7 +118,7 @@ const installSkillsetFlow = async (
 
   let result: InstallResult
 
-  if (conflictFiles.length === 0 && !setupContent) {
+  if (conflictFiles.length === 0) {
     result = copyFilesToProvider(
       newFiles,
       providerFullPath,
@@ -141,6 +142,16 @@ const installSkillsetFlow = async (
         model,
         embedded,
       }),
+      stepper,
+      providerFullPath,
+      model,
+    )
+  }
+
+  if (setupContent && conflictFiles.length === 0) {
+    const model = skillset.provider === 'claude' ? 'sonnet' : undefined
+    await spawnClaude(
+      writeSetupInstructionsFile(setupContent, skillset.name),
       stepper,
       providerFullPath,
       model,
