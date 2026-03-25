@@ -5,6 +5,9 @@ import { dirname, join } from 'node:path'
 import skillTemplate from '../install-skill/install-skill.md?raw'
 import template from '../install-skillset/install.md?raw'
 
+const sanitizeName = (name: string): string =>
+  name.replace(/[/\\]/g, '-').replace(/\.\./g, '_')
+
 const buildSetupSection = (setupContent?: string): string =>
   setupContent
     ? [
@@ -74,7 +77,11 @@ const buildInstructions = (input: InstallInput): string =>
     .replace('{{embeddedSection}}', buildEmbeddedSection(input.embedded))
 
 const writeInstructionsFile = (input: InstallInput): string => {
-  const filePath = join(tmpdir(), 'spm', `install-${input.skillsetName}.md`)
+  const filePath = join(
+    tmpdir(),
+    'spm',
+    `install-${sanitizeName(input.skillsetName)}.md`,
+  )
   mkdirSync(dirname(filePath), { recursive: true })
   writeFileSync(filePath, buildInstructions(input), 'utf-8')
   return filePath
@@ -91,41 +98,69 @@ const buildSkillInstructions = (input: SkillInstallInput): string =>
     .replace('{{embeddedSection}}', buildEmbeddedSection(input.embedded))
 
 const writeSkillInstructionsFile = (input: SkillInstallInput): string => {
-  const filePath = join(tmpdir(), 'spm', `install-skill-${input.skillName}.md`)
+  const filePath = join(
+    tmpdir(),
+    'spm',
+    `install-skill-${sanitizeName(input.skillName)}.md`,
+  )
   mkdirSync(dirname(filePath), { recursive: true })
   writeFileSync(filePath, buildSkillInstructions(input), 'utf-8')
   return filePath
 }
 
-const writeSetupInstructionsFile = (
-  setupContent: string,
-  skillsetName: string,
-): string => {
+type SetupInstructionsInput = {
+  setupContent: string
+  name: string
+  kind?: 'skill' | 'skillset'
+  phase?: 'pre-install' | 'post-install'
+  installDir?: string
+}
+
+const writeSetupInstructionsFile = (input: SetupInstructionsInput): string => {
+  const { setupContent, name, kind = 'skillset', phase, installDir } = input
+  const label = kind === 'skill' ? 'Skill' : 'Skillset'
+  const phaseLabel =
+    phase === 'pre-install'
+      ? ' (pre-install)'
+      : phase === 'post-install'
+        ? ' (post-install)'
+        : ''
+  const locationContext = installDir
+    ? [
+        '',
+        '## Installed files location',
+        '',
+        `The ${kind} files were installed to: \`${installDir}\``,
+        'When the setup instructions reference files by name (e.g. `commit.md`, `push.md`), resolve them relative to this directory.',
+        'You have FULL permission to read and edit all files in this directory. Do not ask for permission — just edit them.',
+      ]
+    : []
   const instructions = [
-    '# Skillset Setup',
+    `# ${label} Setup${phaseLabel}`,
     '',
-    `You are running setup for the **${skillsetName}** skillset.`,
+    `You are running${phaseLabel} setup for the **${name}** ${kind}.`,
     'Follow the instructions below to configure the project environment.',
+    ...locationContext,
     '',
-    '## Output Format',
+    '## Rules',
     '',
-    'CRITICAL — follow exactly:',
-    '- NEVER wrap output in code blocks or backticks',
-    '- NEVER write conversational text',
-    '- NEVER use emojis',
-    '- Output ONLY structured log lines',
-    '- End with `Done` on its own line',
-    '',
-    'Step header: `Running setup...`',
+    '- You MUST use Edit/Write tools to modify files — do NOT skip steps',
+    '- You are running in non-interactive mode — skip optional steps that say "ask the developer"',
+    '- Apply all non-optional changes automatically',
+    '- End with `Done` on its own line when finished',
+    '- Keep output concise — log what you did, not what you plan to do',
     '',
     '## Instructions',
     '',
     setupContent,
-    '',
-    'Done',
   ].join('\n')
 
-  const filePath = join(tmpdir(), 'spm', `setup-${skillsetName}.md`)
+  const suffix = phase ? `-${phase}` : ''
+  const filePath = join(
+    tmpdir(),
+    'spm',
+    `setup-${sanitizeName(name)}${suffix}.md`,
+  )
   mkdirSync(dirname(filePath), { recursive: true })
   writeFileSync(filePath, instructions, 'utf-8')
   return filePath

@@ -152,7 +152,7 @@ const installSkillsetFlow = async (
   if (setupContent && conflictFiles.length === 0) {
     const model = skillset.provider === 'claude' ? 'sonnet' : undefined
     await spawnClaude(
-      writeSetupInstructionsFile(setupContent, skillset.name),
+      writeSetupInstructionsFile({ setupContent, name: skillset.name }),
       stepper,
       providerFullPath,
       model,

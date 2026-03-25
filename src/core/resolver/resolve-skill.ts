@@ -55,6 +55,22 @@ const resolveSkill = async (
     ? deriveSkillName(mainFile.content, fileName)
     : fileName.replace(/\.md$/i, '')
 
+  const skillDir = posix.dirname(identifier.path)
+  const setupPath = posix.join(skillDir, 'SETUP.md')
+  const setupContent = await downloadFromGitHub({
+    kind: 'github',
+    owner: identifier.owner,
+    repository: identifier.repository,
+    path: setupPath,
+    ref,
+  }).catch((err: Error) =>
+    /\b404\b/.test(err.message) ? undefined : Promise.reject(err),
+  )
+
+  const filteredFiles = files.filter(
+    (f) => posix.normalize(f.path) !== posix.normalize(setupPath),
+  )
+
   return {
     name,
     location: {
@@ -63,8 +79,9 @@ const resolveSkill = async (
       path: identifier.path,
       ref,
     },
-    files,
+    files: filteredFiles,
     unresolvedRefs,
+    setupContent,
   }
 }
 

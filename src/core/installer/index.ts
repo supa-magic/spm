@@ -1,17 +1,6 @@
-export type {
-  EmbeddedContext,
-  InstallInput,
-  InstallResult,
-  SkillInstallInput,
-} from './types'
-export { installSingleSkill, installSkillFlow } from './install-skill'
-export { installSkillset, installSkillsetFlow } from './install-skillset'
+export type { EmbeddedContext, InstallInput, InstallResult } from './types'
+export { installSkillFlow } from './install-skill'
+export { installSkillsetFlow } from './install-skillset'
 export { pruneUnchanged } from './prune-unchanged'
-export {
-  buildInstructions,
-  buildSetupSection,
-  buildSkillInstructions,
-  writeInstructionsFile,
-  writeSkillInstructionsFile,
-} from './shared'
+export { buildInstructions } from './shared'
 export { spawnClaude } from './spawn-claude'

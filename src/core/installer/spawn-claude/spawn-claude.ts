@@ -20,11 +20,15 @@ const spawnClaude = (
   providerDir: string,
   model?: string,
   entityLabel = 'Skillset',
+  initialStep = 'Analyzing existing setup...',
+  setup = false,
 ): Promise<InstallResult> =>
   new Promise((resolve, reject) => {
     const args = [
       '-p',
-      'Install the skill as instructed.',
+      setup
+        ? 'Run the setup instructions as described.'
+        : 'Install the skill as instructed.',
       '--append-system-prompt-file',
       instructionsFilePath,
       '--verbose',
@@ -50,7 +54,12 @@ const spawnClaude = (
       stdio: ['ignore', 'pipe', 'pipe'],
     })
 
-    const tracker = createStepTracker(stepper, providerDir, entityLabel)
+    const tracker = createStepTracker(
+      stepper,
+      providerDir,
+      entityLabel,
+      initialStep,
+    )
 
     const stream = createStreamParser((event) => {
       debug?.('event', JSON.stringify(event))
@@ -60,7 +69,7 @@ const spawnClaude = (
       blocks.forEach((block) => tracker.processBlock(block))
     })
 
-    stepper.start('Analyzing existing setup...', 'skills')
+    stepper.start(initialStep, 'skills')
 
     child.stdout.on('data', (chunk: Buffer) => {
       debug?.('stdout', chunk.toString())

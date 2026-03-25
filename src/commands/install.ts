@@ -1,7 +1,7 @@
 import type { Command } from 'commander'
 import { installSkillFlow } from '@/core/installer/install-skill'
 import { installSkillsetFlow } from '@/core/installer/install-skillset'
-import { parseIdentifier } from '@/core/resolver'
+import { detectTarget, parseIdentifier } from '@/core/resolver'
 import { createStepper } from '@/utils/stepper'
 
 const registerInstallCommand = (program: Command) => {
@@ -19,7 +19,16 @@ const registerInstallCommand = (program: Command) => {
         if (parsed.kind === 'skill') {
           await installSkillFlow(parsed.identifier, stepper, startedAt)
         } else {
-          await installSkillsetFlow(input, stepper, startedAt)
+          const target = await detectTarget(parsed.identifier)
+          if (target === 'skill') {
+            const skillIdentifier = {
+              ...parsed.identifier,
+              path: `${parsed.identifier.path}/SKILL.md`,
+            }
+            await installSkillFlow(skillIdentifier, stepper, startedAt)
+          } else {
+            await installSkillsetFlow(input, stepper, startedAt)
+          }
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err)

@@ -11,12 +11,10 @@ const walkDir = (dir: string): string[] =>
 
 const collectRemainingFiles = (downloadDir: string): EmbeddedFile[] => {
   if (!existsSync(downloadDir)) return []
-  return walkDir(downloadDir)
-    .filter((f) => !f.endsWith('SETUP.md'))
-    .map((fullPath) => ({
-      path: relative(downloadDir, fullPath).replace(/\\/g, '/'),
-      content: readFileSync(fullPath, 'utf-8'),
-    }))
+  return walkDir(downloadDir).map((fullPath) => ({
+    path: relative(downloadDir, fullPath).replace(/\\/g, '/'),
+    content: readFileSync(fullPath, 'utf-8'),
+  }))
 }
 
 const listExistingFiles = (providerDir: string): string[] => {
@@ -27,4 +25,4 @@ const listExistingFiles = (providerDir: string): string[] => {
 }
 
 export type { EmbeddedFile }
-export { collectRemainingFiles, listExistingFiles }
+export { collectRemainingFiles, listExistingFiles, walkDir }

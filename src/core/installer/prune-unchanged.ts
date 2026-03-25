@@ -1,26 +1,13 @@
 import { createHash } from 'node:crypto'
-import {
-  existsSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  unlinkSync,
-} from 'node:fs'
+import { existsSync, readFileSync, unlinkSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { walkDir } from './shared/collect-files'
 
 const hash = (content: string): string =>
   createHash('sha256').update(content).digest('hex')
 
-const collectFiles = (dir: string): string[] =>
-  readdirSync(dir).flatMap((entry) => {
-    const fullPath = join(dir, entry)
-    return statSync(fullPath).isDirectory()
-      ? collectFiles(fullPath)
-      : [fullPath]
-  })
-
 const pruneUnchanged = (downloadDir: string, providerDir: string): number => {
-  const files = collectFiles(downloadDir)
+  const files = walkDir(downloadDir)
   let removed = 0
 
   files.forEach((downloadedFile) => {

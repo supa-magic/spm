@@ -7,6 +7,7 @@ export type {
   Skillset,
 } from './types'
 export { deriveSkillName } from './derive-skill-name'
+export { detectTarget } from './detect-target'
 export { fetchDefaultBranch } from './fetch-default-branch'
 export { fetchSkillset } from './fetch-skillset'
 export { parseIdentifier } from './parse-identifier'
