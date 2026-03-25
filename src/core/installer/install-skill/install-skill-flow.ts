@@ -16,9 +16,11 @@ import {
   copyFilesToProvider,
   detectConflicts,
   listExistingFiles,
+  parseSetup,
   printCompleted,
   printSummary,
   writeFilesToTemp,
+  writeSetupInstructionsFile,
   writeSkillInstructionsFile,
 } from '../shared'
 import { spawnClaude } from '../spawn-claude'
@@ -50,15 +52,15 @@ const installSkillFlow = async (
 
   stepper.start(`Downloading ${resolved.files.length} file(s)...`, 'packages')
 
-  await writeFilesToTemp(
-    downloadDir,
-    resolved.files.map((file) => ({
-      relativePath: file.path.startsWith(`${skillDir}/`)
-        ? file.path.slice(skillDir.length + 1)
-        : (file.path.split('/').pop() ?? file.path),
-      content: file.content,
-    })),
-    (relativePath) => stepper.item(relativePath),
+  const tempEntries = resolved.files.map((file) => ({
+    relativePath: file.path.startsWith(`${skillDir}/`)
+      ? file.path.slice(skillDir.length + 1)
+      : (file.path.split('/').pop() ?? file.path),
+    content: file.content,
+  }))
+
+  await writeFilesToTemp(downloadDir, tempEntries, (relativePath) =>
+    stepper.item(relativePath),
   )
 
   stepper.succeed(`Downloaded ${resolved.files.length} file(s)`)
@@ -70,13 +72,40 @@ const installSkillFlow = async (
     )
   }
 
+  const setup = resolved.setupContent
+    ? parseSetup(resolved.setupContent)
+    : undefined
+
   const providerFullPath = join(projectRoot, providerPath)
+  const model = providerName === 'claude' ? 'sonnet' : undefined
   const skillsBase = resolve(providerFullPath, 'skills')
   const skillProviderDir = join(skillsBase, resolved.name)
 
   if (!resolve(skillProviderDir).startsWith(`${skillsBase}${sep}`)) {
     throw new Error(`Invalid skill name: "${resolved.name}"`)
   }
+
+  const setupContent = [setup?.preInstall, setup?.postInstall]
+    .filter(Boolean)
+    .join('\n\n')
+
+  if (setupContent) {
+    await spawnClaude(
+      writeSetupInstructionsFile({
+        setupContent,
+        name: resolved.name,
+        kind: 'skill',
+        installDir: downloadDir,
+      }),
+      stepper,
+      downloadDir,
+      model,
+      'Skill',
+      'Running setup...',
+      true,
+    )
+  }
+
   const pruned = pruneUnchanged(downloadDir, skillProviderDir)
 
   if (pruned > 0) {
@@ -85,9 +114,9 @@ const installSkillFlow = async (
 
   const source = `https://github.com/${resolved.location.owner}/${resolved.location.repository}/blob/${resolved.location.ref}/${resolved.location.path}`
 
-  const remainingFiles = collectRemainingFiles(downloadDir)
+  const installFiles = collectRemainingFiles(downloadDir)
   const { newFiles, conflictFiles } = detectConflicts(
-    remainingFiles,
+    installFiles,
     skillProviderDir,
   )
 
@@ -102,9 +131,8 @@ const installSkillFlow = async (
       'Skill',
     )
   } else {
-    const model = providerName === 'claude' ? 'sonnet' : undefined
     const embedded = {
-      downloadedFiles: remainingFiles,
+      downloadedFiles: installFiles,
       existingFiles: listExistingFiles(providerFullPath),
     }
     result = await spawnClaude(

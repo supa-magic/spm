@@ -55,6 +55,22 @@ const resolveSkill = async (
     ? deriveSkillName(mainFile.content, fileName)
     : fileName.replace(/\.md$/i, '')
 
+  const skillDir = posix.dirname(identifier.path)
+  const setupPath = posix.join(skillDir, 'SETUP.md')
+  let setupContent: string | undefined
+
+  try {
+    setupContent = await downloadFromGitHub({
+      kind: 'github',
+      owner: identifier.owner,
+      repository: identifier.repository,
+      path: setupPath,
+      ref,
+    })
+  } catch {
+    // SETUP.md is optional
+  }
+
   return {
     name,
     location: {
@@ -65,6 +81,7 @@ const resolveSkill = async (
     },
     files,
     unresolvedRefs,
+    setupContent,
   }
 }
 

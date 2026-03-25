@@ -43,6 +43,7 @@ type ResolvedSkill = {
   location: ResolvedLocation
   files: Array<{ path: string; content: string }>
   unresolvedRefs: string[]
+  setupContent?: string
 }
 
 export type {

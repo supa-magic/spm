@@ -58,5 +58,4 @@ const printCompleted = (startedAt: number) => {
   )
 }
 
-export type { TreeNode }
-export { buildFileTree, printCompleted, printSummary, renderTree }
+export { printCompleted, printSummary }

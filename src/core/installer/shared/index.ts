@@ -1,3 +1,4 @@
+export type { ParsedSetup } from './parse-setup'
 export type { TempFileEntry } from './write-to-temp'
 export {
   buildEmbeddedSection,
@@ -9,10 +10,15 @@ export {
   writeSkillInstructionsFile,
 } from './build-prompt'
 export { cleanupDownloadDir } from './cleanup'
-export { collectRemainingFiles, listExistingFiles } from './collect-files'
+export {
+  collectRemainingFiles,
+  listExistingFiles,
+  walkDir,
+} from './collect-files'
 export { copyFilesToProvider } from './copy-files'
 export { detectConflicts } from './detect-conflicts'
 export { downloadEntries, toGitHubSource } from './download-entries'
+export { parseSetup } from './parse-setup'
 export { safePath, stripProviderPrefix } from './path-utils'
 export { printCompleted, printSummary } from './summary'
 export { writeFilesToTemp } from './write-to-temp'

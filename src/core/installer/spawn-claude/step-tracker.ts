@@ -18,8 +18,9 @@ const createStepTracker = (
   stepper: Stepper,
   providerDir: string,
   entityLabel: string,
+  initialStep = 'Analyzing existing setup...',
 ): StepTracker => {
-  let currentStepHeader = 'Analyzing existing setup...'
+  let currentStepHeader = initialStep
   let stepItems: string[] = []
   let stepFileCount = 0
   const state = { setupReached: false }
@@ -45,7 +46,10 @@ const createStepTracker = (
       return
     }
 
-    if (currentStepHeader.startsWith('Running setup')) {
+    if (
+      currentStepHeader.startsWith('Running') &&
+      currentStepHeader.includes('setup')
+    ) {
       stepper.succeed(`${entityLabel} setup completed`)
       currentStepHeader = ''
       return
@@ -74,7 +78,7 @@ const createStepTracker = (
       currentStepHeader = trimmed
       stepItems = []
       stepFileCount = 0
-      if (trimmed.startsWith('Running setup')) {
+      if (trimmed.startsWith('Running') && trimmed.includes('setup')) {
         state.setupReached = true
       }
       stepper.start(trimmed, stepCategory(trimmed))
