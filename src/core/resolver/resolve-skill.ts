@@ -57,19 +57,19 @@ const resolveSkill = async (
 
   const skillDir = posix.dirname(identifier.path)
   const setupPath = posix.join(skillDir, 'SETUP.md')
-  let setupContent: string | undefined
+  const setupContent = await downloadFromGitHub({
+    kind: 'github',
+    owner: identifier.owner,
+    repository: identifier.repository,
+    path: setupPath,
+    ref,
+  }).catch((err: Error) =>
+    /\b404\b/.test(err.message) ? undefined : Promise.reject(err),
+  )
 
-  try {
-    setupContent = await downloadFromGitHub({
-      kind: 'github',
-      owner: identifier.owner,
-      repository: identifier.repository,
-      path: setupPath,
-      ref,
-    })
-  } catch {
-    // SETUP.md is optional
-  }
+  const filteredFiles = files.filter(
+    (f) => posix.normalize(f.path) !== posix.normalize(setupPath),
+  )
 
   return {
     name,
@@ -79,7 +79,7 @@ const resolveSkill = async (
       path: identifier.path,
       ref,
     },
-    files,
+    files: filteredFiles,
     unresolvedRefs,
     setupContent,
   }

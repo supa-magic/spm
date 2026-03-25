@@ -4,20 +4,29 @@ type ParsedSetup = {
 }
 
 const parseSetup = (content: string): ParsedSetup => {
-  const preMatch = content.match(
-    /^#\s+Pre\s+Install\b[^\n]*\n([\s\S]*?)(?=^#\s+Post\s+Install\b|\s*$)/im,
-  )
-  const postMatch = content.match(/^#\s+Post\s+Install\b[^\n]*\n([\s\S]*?)$/im)
+  const hasPreHeader = /^#\s+Pre\s+Install\b/im.test(content)
+  const hasPostHeader = /^#\s+Post\s+Install\b/im.test(content)
 
-  const pre = preMatch?.[1]?.trim() || undefined
-  const post = postMatch?.[1]?.trim() || undefined
-
-  if (!pre && !post) {
+  if (!hasPreHeader && !hasPostHeader) {
     const trimmed = content.trim()
     return { postInstall: trimmed || undefined }
   }
 
-  return { preInstall: pre, postInstall: post }
+  const preMatch = hasPreHeader
+    ? content.match(
+        hasPostHeader
+          ? /^#\s+Pre\s+Install\b[^\n]*\n([\s\S]*?)(?=^#\s+Post\s+Install\b)/im
+          : /^#\s+Pre\s+Install\b[^\n]*\n([\s\S]*)$/im,
+      )
+    : undefined
+  const postMatch = hasPostHeader
+    ? content.match(/^#\s+Post\s+Install\b[^\n]*\n([\s\S]*)$/im)
+    : undefined
+
+  return {
+    preInstall: preMatch?.[1]?.trim() || undefined,
+    postInstall: postMatch?.[1]?.trim() || undefined,
+  }
 }
 
 export type { ParsedSetup }
