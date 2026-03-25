@@ -5,6 +5,9 @@ import { dirname, join } from 'node:path'
 import skillTemplate from '../install-skill/install-skill.md?raw'
 import template from '../install-skillset/install.md?raw'
 
+const sanitizeName = (name: string): string =>
+  name.replace(/[/\\]/g, '-').replace(/\.\./g, '_')
+
 const buildSetupSection = (setupContent?: string): string =>
   setupContent
     ? [
@@ -74,7 +77,11 @@ const buildInstructions = (input: InstallInput): string =>
     .replace('{{embeddedSection}}', buildEmbeddedSection(input.embedded))
 
 const writeInstructionsFile = (input: InstallInput): string => {
-  const filePath = join(tmpdir(), 'spm', `install-${input.skillsetName}.md`)
+  const filePath = join(
+    tmpdir(),
+    'spm',
+    `install-${sanitizeName(input.skillsetName)}.md`,
+  )
   mkdirSync(dirname(filePath), { recursive: true })
   writeFileSync(filePath, buildInstructions(input), 'utf-8')
   return filePath
@@ -91,7 +98,11 @@ const buildSkillInstructions = (input: SkillInstallInput): string =>
     .replace('{{embeddedSection}}', buildEmbeddedSection(input.embedded))
 
 const writeSkillInstructionsFile = (input: SkillInstallInput): string => {
-  const filePath = join(tmpdir(), 'spm', `install-skill-${input.skillName}.md`)
+  const filePath = join(
+    tmpdir(),
+    'spm',
+    `install-skill-${sanitizeName(input.skillName)}.md`,
+  )
   mkdirSync(dirname(filePath), { recursive: true })
   writeFileSync(filePath, buildSkillInstructions(input), 'utf-8')
   return filePath
@@ -145,7 +156,11 @@ const writeSetupInstructionsFile = (input: SetupInstructionsInput): string => {
   ].join('\n')
 
   const suffix = phase ? `-${phase}` : ''
-  const filePath = join(tmpdir(), 'spm', `setup-${name}${suffix}.md`)
+  const filePath = join(
+    tmpdir(),
+    'spm',
+    `setup-${sanitizeName(name)}${suffix}.md`,
+  )
   mkdirSync(dirname(filePath), { recursive: true })
   writeFileSync(filePath, instructions, 'utf-8')
   return filePath
