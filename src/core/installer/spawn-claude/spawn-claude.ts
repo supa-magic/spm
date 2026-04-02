@@ -1,7 +1,7 @@
 import type { Stepper } from '@/utils/stepper'
 import type { InstallResult } from '../types'
 import { spawn } from 'node:child_process'
-import { appendFileSync, mkdirSync } from 'node:fs'
+import { appendFileSync, mkdirSync, readFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { createStreamParser } from './parse-stream'
 import { createStepTracker } from './step-tracker'
@@ -24,13 +24,26 @@ const spawnClaude = (
   setup = false,
 ): Promise<InstallResult> =>
   new Promise((resolve, reject) => {
+    const stdinPrompt = setup
+      ? [
+          'Execute ALL setup steps below. For EACH section that shows a config file path and a JSON/YAML block:',
+          '1. If the file exists, READ it first, then MERGE the new entries (preserve existing settings)',
+          '2. If the file does not exist, CREATE it with the specified content',
+          '3. Do NOT skip any config file — apply every section',
+          '',
+          readFileSync(instructionsFilePath, 'utf-8'),
+        ].join('\n')
+      : undefined
+
     const args = [
-      '-p',
-      setup
-        ? 'Run the setup instructions as described.'
-        : 'Install the skill as instructed.',
-      '--append-system-prompt-file',
-      instructionsFilePath,
+      ...(stdinPrompt
+        ? []
+        : [
+            '-p',
+            'Install the skill as instructed.',
+            '--append-system-prompt-file',
+            instructionsFilePath,
+          ]),
       '--verbose',
       '--output-format',
       'stream-json',
@@ -51,8 +64,13 @@ const spawnClaude = (
 
     const child = spawn('claude', args, {
       shell: isWindows,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: [stdinPrompt ? 'pipe' : 'ignore', 'pipe', 'pipe'],
     })
+
+    if (stdinPrompt && child.stdin) {
+      child.stdin.write(stdinPrompt)
+      child.stdin.end()
+    }
 
     const tracker = createStepTracker(
       stepper,

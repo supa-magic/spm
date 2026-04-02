@@ -74,6 +74,26 @@ Restart the server.`
     })
   })
 
+  it('parses double-hash heading levels', () => {
+    const content = `# Retro Game Sounds
+
+Some description.
+
+## Pre Install
+
+- Node.js (v18+)
+
+## Post Install
+
+### Claude Code
+Create settings.json.`
+
+    const result = parseSetup(content)
+    expect(result.preInstall).toBe('- Node.js (v18+)')
+    expect(result.postInstall).toContain('### Claude Code')
+    expect(result.postInstall).toContain('Create settings.json.')
+  })
+
   it('handles multiline content in sections', () => {
     const content = `# Pre Install
 Step 1: Run migrations.

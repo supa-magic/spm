@@ -19,7 +19,7 @@ type LocalSource = {
 type DownloadSource = GitHubSource | UrlSource | LocalSource
 
 type DownloadedFile = {
-  content: string
+  content: string | Buffer
   source: DownloadSource
 }
 

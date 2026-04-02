@@ -3,7 +3,7 @@ import { existsSync, readFileSync, unlinkSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { walkDir } from './shared/collect-files'
 
-const hash = (content: string): string =>
+const hash = (content: Buffer): string =>
   createHash('sha256').update(content).digest('hex')
 
 const pruneUnchanged = (downloadDir: string, providerDir: string): number => {
@@ -16,8 +16,8 @@ const pruneUnchanged = (downloadDir: string, providerDir: string): number => {
 
     if (!existsSync(existingFile)) return
 
-    const downloadedHash = hash(readFileSync(downloadedFile, 'utf-8'))
-    const existingHash = hash(readFileSync(existingFile, 'utf-8'))
+    const downloadedHash = hash(readFileSync(downloadedFile))
+    const existingHash = hash(readFileSync(existingFile))
 
     if (downloadedHash === existingHash) {
       unlinkSync(downloadedFile)

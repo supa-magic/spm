@@ -5,7 +5,7 @@ import { createStepper } from '@/utils/stepper'
 const registerInitCommand = (program: Command) => {
   program
     .command('init')
-    .description('Initialize project configuration (.spmrc.yml)')
+    .description('Initialize project configuration (.spm.yml)')
     .action(() => {
       const stepper = createStepper()
       const { config, created } = readConfig()

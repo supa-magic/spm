@@ -81,19 +81,13 @@ describe('config', () => {
         providers: {
           claude: {
             path: '.claude',
-            skillsets: {
-              'nextjs-fsd': '@supa-magic/nextjs-fsd@1.0.0',
-              'loop-dev': 'skillbox/loop-dev@2.0.0',
-            },
             skills: {
               git: 'skillbox/git@1.1.0',
               react: 'skillbox/react@1.5',
             },
-            agents: ['code-reviewer'],
-            hooks: ['auto-format-files'],
-            mcp: ['figma.md'],
-            memory: ['lsp-rules.md'],
-            rules: ['coding.md', 'testing.md'],
+            agents: { 'code-reviewer': 'skillbox/code-reviewer@1.0.0' },
+            hooks: { 'auto-format': 'skillbox/auto-format@1.0.0' },
+            rules: { coding: 'skillbox/coding@1.0.0' },
             'local-files': [
               '.claude/my-agent.md',
               '.claude/team-conventions.md',
@@ -101,9 +95,6 @@ describe('config', () => {
           },
           cursor: {
             path: '.cursor/rules',
-            skillsets: {
-              'nextjs-fsd': '@supa-magic/nextjs-fsd@1.0.0',
-            },
             skills: {
               git: 'skillbox/git@1.1.0',
             },
@@ -243,15 +234,15 @@ describe('config', () => {
       ).toThrow('Provider with path ".unknown" not found in config')
     })
 
-    it('removes a skillset entry from config', () => {
+    it('removes a hooks entry from config', () => {
       const config = {
         version: 1,
         providers: {
           claude: {
             path: '.claude',
-            skillsets: {
-              'nextjs-fsd': '@supa-magic/nextjs-fsd@1.0.0',
-              'loop-dev': 'skillbox/loop-dev@2.0.0',
+            hooks: {
+              'retro-game': 'skillbox/retro-game@1.0.0',
+              'auto-format': 'skillbox/auto-format@2.0.0',
             },
           },
         },
@@ -260,13 +251,13 @@ describe('config', () => {
 
       removeConfigEntry({
         providerPath: '.claude',
-        kind: 'skillsets',
-        name: 'nextjs-fsd',
+        kind: 'hooks',
+        name: 'retro-game',
       })
 
       const { config: updated } = readConfig(tmpDir)
-      expect(updated.providers.claude.skillsets).toEqual({
-        'loop-dev': 'skillbox/loop-dev@2.0.0',
+      expect(updated.providers.claude.hooks).toEqual({
+        'auto-format': 'skillbox/auto-format@2.0.0',
       })
     })
   })

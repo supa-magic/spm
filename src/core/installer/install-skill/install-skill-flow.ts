@@ -11,11 +11,13 @@ import { resolveSkill } from '@/core/resolver'
 import { cyan, dim, reset } from '@/utils/ansi'
 import { pruneUnchanged } from '../prune-unchanged'
 import {
+  cleanupBeforeInstall,
   cleanupDownloadDir,
   collectRemainingFiles,
   copyFilesToProvider,
   detectConflicts,
   listExistingFiles,
+  mergeSetupConfigs,
   parseSetup,
   printCompleted,
   printSummary,
@@ -49,6 +51,8 @@ const installSkillFlow = async (
   const projectRoot = getProjectRoot()
   const downloadDir = join(projectRoot, '.spm', resolved.name)
   const skillDir = posix.dirname(resolved.location.path)
+
+  await cleanupBeforeInstall(projectRoot, downloadDir)
 
   stepper.start(`Downloading ${resolved.files.length} file(s)...`, 'packages')
 
@@ -89,13 +93,16 @@ const installSkillFlow = async (
     .filter(Boolean)
     .join('\n\n')
 
+  const setupOutputDir = join(projectRoot, '.spm', '.setup-output')
+
   if (setupContent) {
     await spawnClaude(
       writeSetupInstructionsFile({
         setupContent,
         name: resolved.name,
-        kind: 'skill',
+        packageType: 'skills',
         installDir: downloadDir,
+        outputDir: setupOutputDir,
       }),
       stepper,
       downloadDir,
@@ -104,6 +111,7 @@ const installSkillFlow = async (
       'Running setup...',
       true,
     )
+    mergeSetupConfigs(setupOutputDir, providerFullPath, skillProviderDir)
   }
 
   const pruned = pruneUnchanged(downloadDir, skillProviderDir)

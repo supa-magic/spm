@@ -4,7 +4,7 @@ import { parseIdentifier } from '@/core/resolver'
 describe('parseIdentifier', () => {
   it('parses @owner/repo/path correctly', () => {
     expect(parseIdentifier('@supa-magic/skillbox/claude/fsd')).toEqual({
-      kind: 'skillset',
+      kind: 'package',
       identifier: {
         owner: 'supa-magic',
         repository: 'skillbox',
@@ -15,7 +15,7 @@ describe('parseIdentifier', () => {
 
   it('parses identifier with single path segment', () => {
     expect(parseIdentifier('@supa-magic/skillbox/git')).toEqual({
-      kind: 'skillset',
+      kind: 'package',
       identifier: {
         owner: 'supa-magic',
         repository: 'skillbox',
@@ -26,7 +26,7 @@ describe('parseIdentifier', () => {
 
   it('parses identifier with deep path', () => {
     expect(parseIdentifier('@org/repo/a/b/c')).toEqual({
-      kind: 'skillset',
+      kind: 'package',
       identifier: {
         owner: 'org',
         repository: 'repo',
@@ -37,7 +37,7 @@ describe('parseIdentifier', () => {
 
   it('trims whitespace', () => {
     expect(parseIdentifier('  @supa-magic/skillbox/claude/fsd  ')).toEqual({
-      kind: 'skillset',
+      kind: 'package',
       identifier: {
         owner: 'supa-magic',
         repository: 'skillbox',
@@ -52,7 +52,7 @@ describe('parseIdentifier', () => {
         'https://github.com/supa-magic/skillbox/tree/main/claude/skill-creator',
       ),
     ).toEqual({
-      kind: 'skillset',
+      kind: 'package',
       identifier: {
         owner: 'supa-magic',
         repository: 'skillbox',
@@ -66,7 +66,7 @@ describe('parseIdentifier', () => {
     expect(
       parseIdentifier('https://github.com/org/repo/tree/develop/path/to/skill'),
     ).toEqual({
-      kind: 'skillset',
+      kind: 'package',
       identifier: {
         owner: 'org',
         repository: 'repo',
@@ -160,7 +160,7 @@ describe('parseIdentifier', () => {
 
   it('normalizes double slashes', () => {
     expect(parseIdentifier('@owner//repo/path')).toEqual({
-      kind: 'skillset',
+      kind: 'package',
       identifier: {
         owner: 'owner',
         repository: 'repo',

@@ -5,7 +5,7 @@ import { parse, stringify } from 'yaml'
 import { detectProviders } from './detect-providers'
 import { getProjectRoot } from './project-root'
 
-const CONFIG_FILE = '.spmrc.yml'
+const CONFIG_FILE = '.spm.yml'
 
 const getConfigPath = (root?: string): string =>
   join(root ?? getProjectRoot(), CONFIG_FILE)
@@ -41,7 +41,7 @@ const writeConfig = (config: ProjectConfig, root?: string): void => {
 
 type AddEntryParams = {
   providerPath: string
-  kind: 'skills' | 'skillsets'
+  kind: 'skills' | 'hooks' | 'agents' | 'rules'
   name: string
   source: string
 }
@@ -70,7 +70,7 @@ const addConfigEntry = ({
 
 type RemoveEntryParams = {
   providerPath: string
-  kind: 'skills' | 'skillsets'
+  kind: 'skills' | 'hooks' | 'agents' | 'rules'
   name: string
 }
 

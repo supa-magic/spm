@@ -1,19 +1,22 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
-type EmbeddedFile = { path: string; content: string }
+type EmbeddedFile = { path: string; content: string | Buffer }
 
-const walkDir = (dir: string): string[] =>
+const walkDir = (dir: string, excludeDot = false): string[] =>
   readdirSync(dir).flatMap((entry) => {
+    if (excludeDot && entry.startsWith('.')) return []
     const fullPath = join(dir, entry)
-    return statSync(fullPath).isDirectory() ? walkDir(fullPath) : [fullPath]
+    return statSync(fullPath).isDirectory()
+      ? walkDir(fullPath, excludeDot)
+      : [fullPath]
   })
 
 const collectRemainingFiles = (downloadDir: string): EmbeddedFile[] => {
   if (!existsSync(downloadDir)) return []
-  return walkDir(downloadDir).map((fullPath) => ({
+  return walkDir(downloadDir, true).map((fullPath) => ({
     path: relative(downloadDir, fullPath).replace(/\\/g, '/'),
-    content: readFileSync(fullPath, 'utf-8'),
+    content: readFileSync(fullPath),
   }))
 }
 

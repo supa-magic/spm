@@ -1,7 +1,7 @@
 import type { ParsedIdentifier, SkillIdentifier } from './types'
 
 const detectKind = (path: string): ParsedIdentifier['kind'] =>
-  /\.md$/i.test(path) ? 'skill' : 'skillset'
+  /\.md$/i.test(path) ? 'skill' : 'package'
 
 const parseGitHubUrl = (url: string): ParsedIdentifier | undefined => {
   const blobOrTree = url.match(

@@ -1,9 +1,13 @@
-import type { EmbeddedContext, InstallInput, SkillInstallInput } from '../types'
+import type {
+  EmbeddedContext,
+  PackageInstallInput,
+  SkillInstallInput,
+} from '../types'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+import packageTemplate from '../install-package/install.md?raw'
 import skillTemplate from '../install-skill/install-skill.md?raw'
-import template from '../install-skillset/install.md?raw'
 
 const sanitizeName = (name: string): string =>
   name.replace(/[/\\]/g, '-').replace(/\.\./g, '_')
@@ -58,9 +62,13 @@ const buildEmbeddedSection = (embedded: EmbeddedContext): string => {
     embedded.downloadedFiles.forEach((f) => {
       parts.push(`### ${f.path}`)
       parts.push('')
-      parts.push('```')
-      parts.push(f.content)
-      parts.push('```')
+      if (Buffer.isBuffer(f.content)) {
+        parts.push('*(binary file)*')
+      } else {
+        parts.push('```')
+        parts.push(f.content)
+        parts.push('```')
+      }
       parts.push('')
     })
   }
@@ -68,22 +76,24 @@ const buildEmbeddedSection = (embedded: EmbeddedContext): string => {
   return parts.join('\n')
 }
 
-const buildInstructions = (input: InstallInput): string =>
-  template
+const buildPackageInstructions = (input: PackageInstallInput): string =>
+  packageTemplate
     .replace(/\{\{providerDir\}\}/g, input.providerDir)
-    .replace(/\{\{skillsetName\}\}/g, input.skillsetName)
-    .replace(/\{\{skillsetVersion\}\}/g, input.skillsetVersion)
-    .replace('{{setupSection}}', buildSetupSection(input.setupContent))
+    .replace(/\{\{installDir\}\}/g, input.installDir)
+    .replace(/\{\{packageName\}\}/g, input.packageName)
+    .replace(/\{\{packageVersion\}\}/g, input.packageVersion)
+    .replace(/\{\{packageType\}\}/g, input.packageType)
+    .replace('{{setupSection}}', buildSetupSection())
     .replace('{{embeddedSection}}', buildEmbeddedSection(input.embedded))
 
-const writeInstructionsFile = (input: InstallInput): string => {
+const writePackageInstructionsFile = (input: PackageInstallInput): string => {
   const filePath = join(
     tmpdir(),
     'spm',
-    `install-${sanitizeName(input.skillsetName)}.md`,
+    `install-${sanitizeName(input.packageName)}.md`,
   )
   mkdirSync(dirname(filePath), { recursive: true })
-  writeFileSync(filePath, buildInstructions(input), 'utf-8')
+  writeFileSync(filePath, buildPackageInstructions(input), 'utf-8')
   return filePath
 }
 
@@ -111,14 +121,22 @@ const writeSkillInstructionsFile = (input: SkillInstallInput): string => {
 type SetupInstructionsInput = {
   setupContent: string
   name: string
-  kind?: 'skill' | 'skillset'
+  packageType?: string
   phase?: 'pre-install' | 'post-install'
   installDir?: string
+  outputDir?: string
 }
 
 const writeSetupInstructionsFile = (input: SetupInstructionsInput): string => {
-  const { setupContent, name, kind = 'skillset', phase, installDir } = input
-  const label = kind === 'skill' ? 'Skill' : 'Skillset'
+  const {
+    setupContent,
+    name,
+    packageType = 'package',
+    phase,
+    installDir,
+    outputDir,
+  } = input
+  const label = packageType.charAt(0).toUpperCase() + packageType.slice(1)
   const phaseLabel =
     phase === 'pre-install'
       ? ' (pre-install)'
@@ -130,21 +148,34 @@ const writeSetupInstructionsFile = (input: SetupInstructionsInput): string => {
         '',
         '## Installed files location',
         '',
-        `The ${kind} files were installed to: \`${installDir}\``,
+        `The ${packageType} files were installed to: \`${installDir}\``,
         'When the setup instructions reference files by name (e.g. `commit.md`, `push.md`), resolve them relative to this directory.',
-        'You have FULL permission to read and edit all files in this directory. Do not ask for permission — just edit them.',
+      ]
+    : []
+  const outputContext = outputDir
+    ? [
+        '',
+        '## Output directory',
+        '',
+        `Write ALL generated config files to: \`${outputDir}\``,
+        'Keep the original filename (e.g. `settings.json`) but write it inside the output directory above.',
+        'Write ONLY the new content from the instructions — do NOT read or include existing config file contents.',
+        'The installer will merge your output with existing configs automatically.',
       ]
     : []
   const instructions = [
     `# ${label} Setup${phaseLabel}`,
     '',
-    `You are running${phaseLabel} setup for the **${name}** ${kind}.`,
+    `You are running${phaseLabel} setup for the **${name}** ${packageType}.`,
     'Follow the instructions below to configure the project environment.',
     ...locationContext,
+    ...outputContext,
     '',
     '## Rules',
     '',
     '- You MUST use Edit/Write tools to modify files — do NOT skip steps',
+    '- When instructions show a config file path and a code block, CREATE the file in the output directory with ONLY the new content shown',
+    '- Do NOT read existing config files — the installer handles merging automatically',
     '- You are running in non-interactive mode — skip optional steps that say "ask the developer"',
     '- Apply all non-optional changes automatically',
     '- End with `Done` on its own line when finished',
@@ -168,10 +199,10 @@ const writeSetupInstructionsFile = (input: SetupInstructionsInput): string => {
 
 export {
   buildEmbeddedSection,
-  buildInstructions,
+  buildPackageInstructions,
   buildSetupSection,
   buildSkillInstructions,
-  writeInstructionsFile,
+  writePackageInstructionsFile,
   writeSetupInstructionsFile,
   writeSkillInstructionsFile,
 }

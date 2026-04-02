@@ -4,7 +4,7 @@ const registerListCommand = (program: Command) => {
   program
     .command('list')
     .alias('ls')
-    .description('List installed skillsets')
+    .description('List installed packages')
     .action(() => {
       console.log('Not implemented yet')
     })
