@@ -3,7 +3,7 @@ import { downloadFromGitHub } from './download-from-github'
 import { downloadFromUrl } from './download-from-url'
 import { readLocalFile } from './read-local-file'
 
-const getContent = (source: DownloadSource): Promise<string> => {
+const getContent = (source: DownloadSource): Promise<string | Buffer> => {
   if (source.kind === 'github') return downloadFromGitHub(source)
   if (source.kind === 'url') return downloadFromUrl(source)
   return readLocalFile(source)

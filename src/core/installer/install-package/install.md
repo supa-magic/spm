@@ -1,11 +1,13 @@
-# Skillset Integration
+# Package Integration
 
-You are integrating a new skillset into the project. Analyze the existing project setup and intelligently integrate the new files.
+You are integrating a new package into the project. Analyze the existing project setup and intelligently integrate the new files.
 
 ## Context
 
 - **Provider directory**: `{{providerDir}}`
-- **Skillset**: `{{skillsetName}}` v`{{skillsetVersion}}`
+- **Package**: `{{packageName}}` v`{{packageVersion}}`
+- **Type**: {{packageType}}
+- **Install directory**: `{{installDir}}`
 
 Identical files have already been removed. Only files that need action are listed below. If no downloaded files are listed, output `Done` immediately.
 
@@ -36,20 +38,17 @@ Analyzing existing setup...
   • 4 skills, 2 rules, 1 hook
 
 Analyzing downloaded files...
-  • skills: git, github, implement
-  • rules: coding
-  • hook: biome-format
+  • hooks: retro-game-sounds (6 files)
 
 Detecting conflicts...
   • No conflicts
 
 Integrating...
-  • skills/git/SKILL.md
-  • skills/git/branch.md
-  • skills/github/SKILL.md
+  • hooks/retro-game-sounds/player.mjs
+  • hooks/retro-game-sounds/complete.wav
 
 Running setup...
-  • Configured MCP server: biome
+  • Configured hook events
 
 Done
 
@@ -57,7 +56,7 @@ Done
 
 ## Step 1: Analyzing existing setup
 
-Review the existing files list above and catalog what is already in place: skills, rules, agents, hooks, mcp servers files.
+Review the existing files list above and catalog what is already in place: skills, rules, agents, hooks files.
 Do NOT use Read or Glob to scan the provider directory — all information is provided above.
 
 ## Step 2: Analyzing downloaded files
@@ -70,8 +69,10 @@ Do NOT use Read or Glob to scan the download directory — all file contents are
 Using the existing files list and downloaded files above, check if any downloaded file conflicts with an existing file.
 
 - **No existing file** → install as new
-- **Different skillset version** → replace silently (new version supersedes)
-- **Same version or no version info** → conflict — ask the user:
+- **Different content** → replace silently
+- **Same content** → skip (should already be pruned)
+
+If there is a real conflict (same path, user has customized the existing file):
 
 Detecting conflicts...
   • rules/coding.md — local has custom rules
@@ -81,13 +82,13 @@ Wait for response before proceeding.
 
 ## Step 4: Integrating
 
-Write each downloaded file to `{{providerDir}}` using the Write tool, following the directory structure from the file paths. Use the exact content provided above.
+Write each downloaded file to `{{installDir}}` using the Write tool. Use the exact content provided above.
 
-**Integrate, don't copy.** When a new skill can leverage existing project conventions, adapt it:
+**Integrate, don't copy.** When a new file can leverage existing project conventions, adapt it:
 
-- If the project has `rules/coding.md` with specific conventions → make new skills follow those rules instead of their own defaults
+- If the project has `rules/coding.md` with specific conventions → make new files follow those rules instead of their own defaults
 - If existing skills handle branching or committing → reference them instead of duplicating instructions
-- If the project has naming conventions, testing patterns, or architectural rules → align new skills with them
+- If the project has naming conventions, testing patterns, or architectural rules → align new files with them
 
 {{setupSection}}
 

@@ -1,39 +1,41 @@
-import type { InstallInput } from '@/core/installer'
+import type { PackageInstallInput } from '@/core/installer'
 import { describe, expect, it } from 'vitest'
-import { buildInstructions } from '@/core/installer'
+import { buildPackageInstructions } from '@/core/installer'
 
-const defaultInput: InstallInput = {
+const defaultInput: PackageInstallInput = {
   providerDir: '.claude',
-  skillsetName: 'dev-tools',
-  skillsetVersion: '1.0.0',
+  installDir: '.claude/hooks/retro-game',
+  packageName: 'retro-game',
+  packageVersion: '1.0.0',
+  packageType: 'hooks',
   source: '@supa-magic/skillbox',
-  configPath: '.spmrc.yml',
+  configPath: '.spm.yml',
   embedded: {
-    downloadedFiles: [{ path: 'skills/git/SKILL.md', content: '# Git skill' }],
+    downloadedFiles: [{ path: 'player.mjs', content: '// player code' }],
     existingFiles: [],
   },
 }
 
-describe('buildInstructions', () => {
+describe('buildPackageInstructions', () => {
   it('embeds downloaded file contents', () => {
-    const instructions = buildInstructions(defaultInput)
-    expect(instructions).toContain('skills/git/SKILL.md')
-    expect(instructions).toContain('# Git skill')
+    const instructions = buildPackageInstructions(defaultInput)
+    expect(instructions).toContain('player.mjs')
+    expect(instructions).toContain('// player code')
   })
 
   it('includes provider directory', () => {
-    const instructions = buildInstructions(defaultInput)
+    const instructions = buildPackageInstructions(defaultInput)
     expect(instructions).toContain('.claude')
   })
 
-  it('includes skillset name and version', () => {
-    const instructions = buildInstructions(defaultInput)
-    expect(instructions).toContain('dev-tools')
+  it('includes package name and version', () => {
+    const instructions = buildPackageInstructions(defaultInput)
+    expect(instructions).toContain('retro-game')
     expect(instructions).toContain('1.0.0')
   })
 
   it('contains integration instructions', () => {
-    const instructions = buildInstructions(defaultInput)
+    const instructions = buildPackageInstructions(defaultInput)
     expect(instructions).toContain('Analyzing existing setup')
     expect(instructions).toContain('Detecting conflicts')
     expect(instructions).toContain('Integrating')

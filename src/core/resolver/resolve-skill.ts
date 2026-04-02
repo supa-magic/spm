@@ -13,7 +13,7 @@ const resolveSkill = async (
     (await fetchDefaultBranch(identifier.owner, identifier.repository))
 
   const visited = new Set<string>()
-  const files: Array<{ path: string; content: string }> = []
+  const files: Array<{ path: string; content: string | Buffer }> = []
   const unresolvedRefs: string[] = []
 
   const fetchRecursive = async (
@@ -24,7 +24,7 @@ const resolveSkill = async (
     if (visited.has(normalized)) return
     visited.add(normalized)
 
-    let content: string
+    let content: string | Buffer
     try {
       content = await downloadFromGitHub({
         kind: 'github',
@@ -41,23 +41,25 @@ const resolveSkill = async (
 
     files.push({ path: normalized, content })
 
-    const fileDir = posix.dirname(normalized)
-    const refs = parseSkillRefs(content, fileDir)
-
-    await Promise.all(refs.map((refPath) => fetchRecursive(refPath, false)))
+    if (typeof content === 'string') {
+      const fileDir = posix.dirname(normalized)
+      const refs = parseSkillRefs(content, fileDir)
+      await Promise.all(refs.map((refPath) => fetchRecursive(refPath, false)))
+    }
   }
 
   await fetchRecursive(identifier.path, true)
 
   const mainFile = files[0]
   const fileName = posix.basename(identifier.path)
-  const name = mainFile
-    ? deriveSkillName(mainFile.content, fileName)
-    : fileName.replace(/\.md$/i, '')
+  const name =
+    mainFile && typeof mainFile.content === 'string'
+      ? deriveSkillName(mainFile.content, fileName)
+      : fileName.replace(/\.md$/i, '')
 
   const skillDir = posix.dirname(identifier.path)
   const setupPath = posix.join(skillDir, 'SETUP.md')
-  const setupContent = await downloadFromGitHub({
+  const setupResult = await downloadFromGitHub({
     kind: 'github',
     owner: identifier.owner,
     repository: identifier.repository,
@@ -66,6 +68,8 @@ const resolveSkill = async (
   }).catch((err: Error) =>
     /\b404\b/.test(err.message) ? undefined : Promise.reject(err),
   )
+  const setupContent =
+    setupResult === undefined ? undefined : String(setupResult)
 
   const filteredFiles = files.filter(
     (f) => posix.normalize(f.path) !== posix.normalize(setupPath),

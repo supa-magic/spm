@@ -3,68 +3,75 @@ import type { ProjectConfig } from '@/core/config'
 import { readdir, rm } from 'node:fs/promises'
 import { join, resolve, sep } from 'node:path'
 import { getProjectRoot, readConfig, removeConfigEntry } from '@/core/config'
+import { unmergeSetupConfigs } from '@/core/installer/shared/merge-setup-configs'
 import { cyan, dim, green, reset } from '@/utils/ansi'
 import { createStepper } from '@/utils/stepper'
 
-const findSkillProvider = (config: ProjectConfig, skillName: string) => {
-  const entry = Object.entries(config.providers).find(
-    ([, provider]) =>
-      provider.skills != null && Object.hasOwn(provider.skills, skillName),
-  )
+const packageKinds = ['skills', 'hooks', 'agents', 'rules'] as const
 
-  if (!entry) return undefined
-
-  const [, provider] = entry
-  return {
-    providerPath: provider.path,
-    source: provider.skills?.[skillName] ?? '',
+const findPackageProvider = (config: ProjectConfig, packageName: string) => {
+  for (const [, provider] of Object.entries(config.providers)) {
+    for (const kind of packageKinds) {
+      const entries = provider[kind]
+      if (entries && Object.hasOwn(entries, packageName)) {
+        return {
+          providerPath: provider.path,
+          kind,
+          source: entries[packageName],
+        }
+      }
+    }
   }
+  return undefined
 }
 
 const registerUninstallCommand = (program: Command) => {
   program
-    .command('uninstall <skill>')
+    .command('uninstall <package>')
     .alias('un')
-    .description('Uninstall a skill from the project')
-    .action(async (skillName: string) => {
+    .description('Uninstall a package from the project')
+    .action(async (packageName: string) => {
       const stepper = createStepper()
 
       try {
-        stepper.start('Removing skill...', 'packages')
+        stepper.start('Removing package...', 'packages')
 
         const { config } = readConfig()
-        const match = findSkillProvider(config, skillName)
+        const match = findPackageProvider(config, packageName)
 
         if (!match) {
-          throw new Error(`Skill "${skillName}" is not installed`)
+          throw new Error(`Package "${packageName}" is not installed`)
         }
 
         const projectRoot = getProjectRoot()
-        const skillsParentDir = join(projectRoot, match.providerPath, 'skills')
-        const skillDir = join(skillsParentDir, skillName)
-        const resolved = resolve(skillDir)
+        const kindDir = join(projectRoot, match.providerPath, match.kind)
+        const packageDir = join(kindDir, packageName)
+        const resolved = resolve(packageDir)
 
-        if (!resolved.startsWith(`${resolve(skillsParentDir)}${sep}`)) {
-          throw new Error(`Invalid skill name: "${skillName}"`)
+        if (!resolved.startsWith(`${resolve(kindDir)}${sep}`)) {
+          throw new Error(`Invalid package name: "${packageName}"`)
         }
 
-        await rm(skillDir, { recursive: true, force: true })
+        const providerFullPath = join(projectRoot, match.providerPath)
+        unmergeSetupConfigs(packageDir, providerFullPath)
 
-        const remaining = await readdir(skillsParentDir).catch(() => [])
+        await rm(packageDir, { recursive: true, force: true })
+
+        const remaining = await readdir(kindDir).catch(() => [])
 
         if (remaining.length === 0) {
-          await rm(skillsParentDir, { recursive: true, force: true })
+          await rm(kindDir, { recursive: true, force: true })
         }
 
         removeConfigEntry({
           providerPath: match.providerPath,
-          kind: 'skills',
-          name: skillName,
+          kind: match.kind,
+          name: packageName,
         })
 
         stepper.succeed(
           `${green}Removed${reset}`,
-          `${skillName} ${dim}from ${match.providerPath}${reset}`,
+          `${packageName} ${dim}from ${match.providerPath}/${match.kind}${reset}`,
         )
         stepper.stop()
 

@@ -1,6 +1,10 @@
-export type { EmbeddedContext, InstallInput, InstallResult } from './types'
+export type {
+  EmbeddedContext,
+  InstallResult,
+  PackageInstallInput,
+} from './types'
+export { installPackageFlow } from './install-package'
 export { installSkillFlow } from './install-skill'
-export { installSkillsetFlow } from './install-skillset'
 export { pruneUnchanged } from './prune-unchanged'
-export { buildInstructions } from './shared'
+export { buildPackageInstructions } from './shared'
 export { spawnClaude } from './spawn-claude'

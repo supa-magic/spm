@@ -22,7 +22,7 @@ const copyFilesToProvider = (
   const writtenFiles = files.map((file) => {
     const targetPath = safePath(targetDir, file.path)
     mkdirSync(dirname(targetPath), { recursive: true })
-    writeFileSync(targetPath, file.content, 'utf-8')
+    writeFileSync(targetPath, file.content)
     const relativePath = relative(providerDir, targetPath).replace(/\\/g, '/')
     stepper.item(relativePath)
     return relativePath

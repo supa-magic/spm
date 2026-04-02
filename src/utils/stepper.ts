@@ -14,9 +14,13 @@ const funMessages: Record<FunCategory, readonly string[]> = {
     'Fetching metadata from the registry...',
     'Comparing lockfile with remote...',
     'Deduplicating shared packages...',
+    'Counting node_modules. Still counting...',
+    'Unpacking tarballs like it is 1999...',
     // ~20% worried
     'This package has 47 peer deps. Deep breath...',
     'The lockfile disagrees. The lockfile is wrong...',
+    'Found a package older than Node.js itself...',
+    'This dependency tree has loops. Fun...',
   ],
   skills: [
     'Loading skill into working memory...',
@@ -40,11 +44,19 @@ const funMessages: Record<FunCategory, readonly string[]> = {
     'Reading configuration files...',
     'Scanning project structure...',
     'Writing changes to disk...',
+    'Teaching old prompts new tricks...',
+    'Convincing the AI this is a good idea...',
+    'Asking politely for cooperation...',
+    'Pretending to understand the skill graph...',
+    'Downloading more RAM for the AI...',
     // ~20% worried
     'Something looks off in the skill graph...',
     'Skill definition is ambiguous. Guessing...',
     'Agent returned something weird. Reading it charitably...',
     'The agent went off-script. Gently correcting...',
+    'Oh I discovered a dead pixel in your SSD...',
+    'The AI is writing poetry instead of code...',
+    'Skill installed itself. Twice. On purpose...',
   ],
   generic: [
     'Warming up the tubes and transistors...',
@@ -58,6 +70,8 @@ const funMessages: Record<FunCategory, readonly string[]> = {
     // ~20% worried
     "This should've worked. Looking into it...",
     'That took longer than expected. Moving on...',
+    'Blowing on the cartridge...',
+    'Have you tried turning it off and on again?',
   ],
 }
 
@@ -262,5 +276,5 @@ const createStepper = (): Stepper => {
   }
 }
 
-export { createStepper }
 export type { FunCategory, Stepper }
+export { createStepper }

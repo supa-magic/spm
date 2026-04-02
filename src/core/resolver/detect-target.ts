@@ -4,9 +4,9 @@ import { fetchDefaultBranch } from './fetch-default-branch'
 
 const detectTarget = async (
   identifier: SkillIdentifier,
-): Promise<'skill' | 'skillset'> => {
+): Promise<'skill' | 'package'> => {
   const basename = posix.basename(identifier.path)
-  if (basename === 'skillset.yml') return 'skillset'
+  if (basename === 'install.yml') return 'package'
   if (/\.md$/i.test(basename)) return 'skill'
 
   const ref =
@@ -19,11 +19,11 @@ const detectTarget = async (
     return res.ok
   }
 
-  if (await probe('skillset.yml')) return 'skillset'
+  if (await probe('install.yml')) return 'package'
   if (await probe('SKILL.md')) return 'skill'
 
   throw new Error(
-    `No skillset.yml or SKILL.md found at "${identifier.path}". Expected a skill folder with SKILL.md or a skillset with skillset.yml.`,
+    `No install.yml or SKILL.md found at "${identifier.path}". Expected a package with install.yml or a skill with SKILL.md.`,
   )
 }
 

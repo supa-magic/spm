@@ -18,13 +18,13 @@ describe('detectTarget', () => {
     vi.restoreAllMocks()
   })
 
-  it('returns skillset when path ends with skillset.yml', async () => {
+  it('returns package when path ends with install.yml', async () => {
     const result = await detectTarget({
       owner: 'org',
       repository: 'repo',
-      path: 'claude/fsd/skillset.yml',
+      path: 'skills/retro-game/install.yml',
     })
-    expect(result).toBe('skillset')
+    expect(result).toBe('package')
     expect(fetch).not.toHaveBeenCalled()
   })
 
@@ -38,11 +38,11 @@ describe('detectTarget', () => {
     expect(fetch).not.toHaveBeenCalled()
   })
 
-  it('probes GitHub and returns skillset when skillset.yml exists', async () => {
+  it('probes GitHub and returns package when install.yml exists', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn((url: string) => {
-        if (typeof url === 'string' && url.endsWith('/skillset.yml'))
+        if (typeof url === 'string' && url.endsWith('/install.yml'))
           return Promise.resolve({ ok: true })
         return Promise.resolve({
           ok: true,
@@ -54,10 +54,10 @@ describe('detectTarget', () => {
     const result = await detectTarget({
       owner: 'org',
       repository: 'repo',
-      path: 'claude/fsd',
+      path: 'skills/retro-game',
       ref: 'main',
     })
-    expect(result).toBe('skillset')
+    expect(result).toBe('package')
   })
 
   it('probes GitHub and returns skill when SKILL.md exists', async () => {
@@ -103,7 +103,7 @@ describe('detectTarget', () => {
         path: 'unknown/path',
         ref: 'main',
       }),
-    ).rejects.toThrow('No skillset.yml or SKILL.md found')
+    ).rejects.toThrow('No install.yml or SKILL.md found')
   })
 
   it('fetches default branch when ref is not provided', async () => {

@@ -5,11 +5,12 @@ type EmbeddedContext = {
   existingFiles: string[]
 }
 
-type InstallInput = {
-  setupContent?: string
+type PackageInstallInput = {
   providerDir: string
-  skillsetName: string
-  skillsetVersion: string
+  installDir: string
+  packageName: string
+  packageVersion: string
+  packageType: string
   source: string
   configPath: string
   model?: string
@@ -32,4 +33,9 @@ type SkillInstallInput = {
   embedded: EmbeddedContext
 }
 
-export type { EmbeddedContext, InstallInput, InstallResult, SkillInstallInput }
+export type {
+  EmbeddedContext,
+  InstallResult,
+  PackageInstallInput,
+  SkillInstallInput,
+}

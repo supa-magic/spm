@@ -1,6 +1,6 @@
 import type { Command } from 'commander'
+import { installPackageFlow } from '@/core/installer/install-package'
 import { installSkillFlow } from '@/core/installer/install-skill'
-import { installSkillsetFlow } from '@/core/installer/install-skillset'
 import { detectTarget, parseIdentifier } from '@/core/resolver'
 import { createStepper } from '@/utils/stepper'
 
@@ -8,7 +8,7 @@ const registerInstallCommand = (program: Command) => {
   program
     .command('install <target>')
     .alias('i')
-    .description('Install a skillset or skill into the project')
+    .description('Install a package into the project')
     .action(async (input: string) => {
       const stepper = createStepper()
       const startedAt = Date.now()
@@ -27,7 +27,7 @@ const registerInstallCommand = (program: Command) => {
             }
             await installSkillFlow(skillIdentifier, stepper, startedAt)
           } else {
-            await installSkillsetFlow(input, stepper, startedAt)
+            await installPackageFlow(input, stepper, startedAt)
           }
         }
       } catch (err) {

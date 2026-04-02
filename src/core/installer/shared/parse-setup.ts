@@ -4,8 +4,8 @@ type ParsedSetup = {
 }
 
 const parseSetup = (content: string): ParsedSetup => {
-  const hasPreHeader = /^#\s+Pre\s+Install\b/im.test(content)
-  const hasPostHeader = /^#\s+Post\s+Install\b/im.test(content)
+  const hasPreHeader = /^#+\s+Pre\s+Install\b/im.test(content)
+  const hasPostHeader = /^#+\s+Post\s+Install\b/im.test(content)
 
   if (!hasPreHeader && !hasPostHeader) {
     const trimmed = content.trim()
@@ -15,12 +15,12 @@ const parseSetup = (content: string): ParsedSetup => {
   const preMatch = hasPreHeader
     ? content.match(
         hasPostHeader
-          ? /^#\s+Pre\s+Install\b[^\n]*\n([\s\S]*?)(?=^#\s+Post\s+Install\b)/im
-          : /^#\s+Pre\s+Install\b[^\n]*\n([\s\S]*)$/im,
+          ? /^#+\s+Pre\s+Install\b[^\n]*\n([\s\S]*?)(?=^#+\s+Post\s+Install\b)/im
+          : /^#+\s+Pre\s+Install\b[^\n]*\n([\s\S]*)$/im,
       )
     : undefined
   const postMatch = hasPostHeader
-    ? content.match(/^#\s+Post\s+Install\b[^\n]*\n([\s\S]*)$/im)
+    ? content.match(/^#+\s+Post\s+Install\b[^\n]*\n([\s\S]*)$/im)
     : undefined
 
   return {

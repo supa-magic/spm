@@ -27,7 +27,7 @@ const spawnClaude = (
     const args = [
       '-p',
       setup
-        ? 'Run the setup instructions as described.'
+        ? 'Execute ALL setup steps described in the system prompt.'
         : 'Install the skill as instructed.',
       '--append-system-prompt-file',
       instructionsFilePath,

@@ -1,12 +1,9 @@
 type Provider = {
   path: string
-  skillsets?: Record<string, string>
   skills?: Record<string, string>
-  agents?: string[]
-  hooks?: string[]
-  mcp?: string[]
-  memory?: string[]
-  rules?: string[]
+  hooks?: Record<string, string>
+  agents?: Record<string, string>
+  rules?: Record<string, string>
   'local-files'?: string[]
 }
 
