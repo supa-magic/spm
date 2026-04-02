@@ -39,6 +39,27 @@ describe('downloadFromGitHub', () => {
     )
   })
 
+  it('returns Buffer for binary files', async () => {
+    const binaryBytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47])
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          arrayBuffer: () => Promise.resolve(binaryBytes.buffer),
+        }),
+      ),
+    )
+
+    const binarySource: GitHubSource = {
+      ...source,
+      path: 'sounds/complete.wav',
+    }
+    const content = await downloadFromGitHub(binarySource)
+    expect(Buffer.isBuffer(content)).toBe(true)
+    expect(content).toEqual(Buffer.from(binaryBytes))
+  })
+
   it('throws on HTTP error', async () => {
     vi.stubGlobal(
       'fetch',

@@ -17,6 +17,17 @@ describe('readLocalFile', () => {
     expect(content).toBe('# Local Skill\n\nLocal content.')
   })
 
+  it('returns Buffer for binary files', async () => {
+    const binaryBytes = Buffer.from([0x52, 0x49, 0x46, 0x46])
+    const filePath = join(tempDir, 'sound.wav')
+    writeFileSync(filePath, binaryBytes)
+    const source: LocalSource = { kind: 'local', filePath }
+
+    const content = await readLocalFile(source)
+    expect(Buffer.isBuffer(content)).toBe(true)
+    expect(content).toEqual(binaryBytes)
+  })
+
   it('throws when file does not exist', async () => {
     const source: LocalSource = {
       kind: 'local',

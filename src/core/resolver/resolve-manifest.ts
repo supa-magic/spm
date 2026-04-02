@@ -25,7 +25,7 @@ const resolveSource = (
     return {
       owner: location.owner,
       repository: location.repository,
-      basePath: `${manifestDir}/${relativePath}`,
+      basePath: posix.join(manifestDir, relativePath),
     }
   }
 
@@ -99,7 +99,7 @@ const resolveManifest = (
     entries.push({
       owner: location.owner,
       repository: location.repository,
-      path: `${manifestDir}/${setupFile}`,
+      path: posix.join(manifestDir, setupFile),
       type: 'setup',
     })
   }
@@ -122,7 +122,7 @@ const resolveManifest = (
       entries.push({
         owner: location.owner,
         repository: location.repository,
-        path: `${manifestDir}/${file}`,
+        path: posix.join(manifestDir, file),
         type: packageType,
       })
     })

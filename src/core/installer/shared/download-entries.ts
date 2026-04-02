@@ -24,7 +24,6 @@ const downloadEntries = async (
           ...result,
           type: entry.type,
           path: entry.path,
-          skillName: entry.skillName,
         }
       })
     }),
