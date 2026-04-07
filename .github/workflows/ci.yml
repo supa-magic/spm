@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+jobs:
+  unit:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 22]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  e2e:
+    needs: unit
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}/e2e
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull E2E base image
+        run: docker pull ${{ env.IMAGE }}:latest
+
+      - name: Run E2E tests
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/app/spm" \
+            -e ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
+            -e OPENCODE_API_KEY=${{ secrets.OPENCODE_API_KEY }} \
+            -e E2E_PROJECTS_DIR=/app/projects \
+            --tmpfs /tmp \
+            --entrypoint sh \
+            ${{ env.IMAGE }}:latest \
+            -c "cd /app/spm && npm ci && npm run build && npm link && npm run test:e2e"
+        timeout-minutes: 15

@@ -77,7 +77,15 @@ describe('detectProviders', () => {
   })
 
   it('includes all expected known providers', () => {
-    const expected = ['claude', 'cursor', 'copilot', 'aider', 'codeium', 'cody']
+    const expected = [
+      'claude',
+      'opencode',
+      'cursor',
+      'copilot',
+      'aider',
+      'codeium',
+      'cody',
+    ]
     expect(Object.keys(knownProviders)).toEqual(expected)
   })
 })

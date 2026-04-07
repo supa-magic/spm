@@ -1,0 +1,15 @@
+services:
+  e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    volumes:
+      - .:/app/spm
+      - /app/spm/node_modules
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENCODE_API_KEY=${OPENCODE_API_KEY}
+      - E2E_PROJECTS_DIR=/app/projects
+    entrypoint: ["sh", "-c", "npm ci && npm run build && npm link && npm run test:e2e"]
+    tmpfs:
+      - /tmp

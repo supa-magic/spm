@@ -5,6 +5,7 @@ import { join } from 'node:path'
 
 const knownProviders: Record<string, string> = {
   claude: '.claude',
+  opencode: '.opencode',
   cursor: '.cursor/rules',
   copilot: '.copilot',
   aider: '.aider',
@@ -14,6 +15,7 @@ const knownProviders: Record<string, string> = {
 
 const cliCommands: Record<string, string> = {
   claude: 'claude',
+  opencode: 'opencode',
   aider: 'aider',
 }
 
